@@ -18,7 +18,7 @@ fn main() {
                 println!("Bye! AYAYA");
                 break;
             }
-            _ => println!("You said: [{}]", user_input),
+            _ => println!("Pathified: [{:?}]", PathTree::create_path(user_input.as_str())),
         }
     }
 }

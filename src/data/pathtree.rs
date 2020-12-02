@@ -10,4 +10,8 @@ impl<'a> PathTree<'a> {
          tree: HashMap::new()
       }
    }
+
+   pub fn create_path(pathify_this: &'a str) -> Vec<&'a str> {
+      pathify_this.trim().split_whitespace().collect::<Vec<&str>>()
+   }
 }
