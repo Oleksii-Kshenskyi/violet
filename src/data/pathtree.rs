@@ -11,7 +11,7 @@ impl PathTree {
       }
    }
 
-   pub fn create_path(pathify_this: String) -> Vec<String> {
+   pub fn create_path(pathify_this: &String) -> Vec<String> {
       pathify_this.trim().split_whitespace().map(|elem| {
          elem.to_string()
       }).collect::<Vec<String>>()
