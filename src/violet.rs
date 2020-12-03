@@ -9,7 +9,7 @@ fn main() {
     println!("Violet's version is {};", get_violet_version());
     println!("Created by {}.", get_violet_author());
 
-    let mut kek = PathTree::new();
+    let mut app_command_tree = PathTree::new();
 
     loop {
         let user_input = io::input::get_user_input(get_violet_prompt());
@@ -20,8 +20,8 @@ fn main() {
                 break;
             }
             _ => {
-                kek.set_by_path(String::from("Pogomega"), pathified);
-                println!("PathTree now: [{:?}]", kek.tree);
+                app_command_tree.set_by_path(String::from("Pogomega"), pathified);
+                println!("PathTree now: [{:?}]", app_command_tree.tree);
             },
         }
     }
