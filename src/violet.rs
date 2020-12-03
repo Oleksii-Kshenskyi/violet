@@ -9,16 +9,21 @@ fn main() {
     println!("Violet's version is {};", get_violet_version());
     println!("Created by {}.", get_violet_author());
 
-    let kek = PathTree::new();
+    let mut kek = PathTree::new();
 
     loop {
-        let user_input = io::input::get_user_input(get_violet_prompt().as_str());
-        match user_input.as_str() {
+        let user_input = io::input::get_user_input(get_violet_prompt());
+        let match_it = user_input.clone();
+        let pathified = PathTree::create_path(user_input);
+        match match_it.as_str() {
             "exit" => {
                 println!("Bye! AYAYA");
                 break;
             }
-            _ => println!("Pathified: [{:?}]", PathTree::create_path(user_input.as_str())),
+            _ => {
+                kek.set_by_path(String::from("Pogomega"), pathified);
+                println!("PathTree now: [{:?}]", kek.tree);
+            },
         }
     }
 }
