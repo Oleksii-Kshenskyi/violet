@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Node {
-   value: String
+   pub value: String
 }
 
 pub struct PathTree {
@@ -23,6 +23,10 @@ impl PathTree {
    }
 
    pub fn set_by_path(&mut self, value: String, path: Vec<String>) {
+      if path.len() == 0 {
+         panic!("ERROR: path to a node cannot be empty!");
+      }
+
       let mut the_hierarchy = Self::get_path_hierarchy(&path);
       the_hierarchy.iter_mut().enumerate().for_each(|(index, one_path)| {
          if index == path.len() - 1 {
@@ -34,6 +38,19 @@ impl PathTree {
             }
          }
       })
+   }
+
+   pub fn get_by_path(&self, path: Vec<String>) -> Option<&Node> {
+      if let Some(node_option) = self.tree.get(&path.join(" ")) {
+         node_option.as_ref()
+      }
+      else {
+         None
+      }
+   }
+
+   pub fn does_node_exist(&self, path: Vec<String>) -> bool {
+      self.tree.contains_key(&path.join(" "))
    }
 
 
@@ -86,4 +103,45 @@ fn test_path_hierarchy() {
       .map(|elem| { elem.to_string() })
       .collect::<Vec<String>>();
    assert_eq!(test_vec, PathTree::get_path_hierarchy(&expected));
+}
+
+#[test]
+fn test_tree_setters_and_getters() {
+   let mut test_tree = PathTree::new();
+   let path = PathTree::create_path(&"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string());
+
+   test_tree.set_by_path("test garbage val".to_string(), path);
+   assert_eq!(true, test_tree.does_node_exist(PathTree::create_path(&"そっか".to_string())));
+   assert_eq!(true, test_tree.does_node_exist(PathTree::create_path(&"そっか おふの".to_string())));
+   assert_eq!(true, test_tree.does_node_exist(PathTree::create_path(&"そっか おふの $%?рашин".to_string())));
+   assert_eq!(true, test_tree.does_node_exist(PathTree::create_path(&"そっか おふの $%?рашин /fourth".to_string())));
+   assert_eq!(true, test_tree.does_node_exist(PathTree::create_path(&"そっか おふの $%?рашин /fourth .fifth".to_string())));
+   assert_eq!(true, test_tree.does_node_exist(PathTree::create_path(&"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string())));
+   assert_eq!(None, test_tree.get_by_path(PathTree::create_path(&"そっか".to_string())));
+   assert_eq!(None, test_tree.get_by_path(PathTree::create_path(&"そっか おふの".to_string())));
+   assert_eq!(None, test_tree.get_by_path(PathTree::create_path(&"そっか おふの $%?рашин".to_string())));
+   assert_eq!(None, test_tree.get_by_path(PathTree::create_path(&"そっか おふの $%?рашин /fourth".to_string())));
+   assert_eq!(None, test_tree.get_by_path(PathTree::create_path(&"そっか おふの $%?рашин /fourth .fifth".to_string())));
+   assert_eq!(Some(&Node { value: String::from("test garbage val") }), test_tree.get_by_path(PathTree::create_path(&"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string())));
+}
+
+#[test]
+fn check_empty_path_creation() {
+   let mut test_tree = PathTree::new();
+   let path = PathTree::create_path(&"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string());
+   test_tree.set_by_path("test garbage val".to_string(), path.clone());
+
+
+   assert_eq!(Vec::<String>::new(), PathTree::create_path(&String::from("")));
+   assert_eq!(Vec::<String>::new(), PathTree::get_path_hierarchy(&vec![]));
+
+   assert_eq!(false, test_tree.does_node_exist(vec![]));
+   assert_eq!(None, test_tree.get_by_path(vec![]));
+}
+
+#[test]
+#[should_panic(expected = "ERROR: path to a node cannot be empty!")]
+fn test_setting_node_with_empty_path_panics() {
+   let mut test_tree = PathTree::new();
+   test_tree.set_by_path("value".to_string(), vec![]);
 }
