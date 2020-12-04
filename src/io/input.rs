@@ -1,7 +1,7 @@
 use std::io;
 use std::io::Write;
 
-pub fn get_user_input(prompt: &str) -> String {
+pub fn get_user_input(prompt: String) -> String {
     print!("{}", prompt);
     std::io::stdout()
         .flush()
