@@ -1,6 +1,6 @@
 mod config;
-mod io;
 mod data;
+mod io;
 use config::*;
 use data::pathtree::PathTree;
 
@@ -22,10 +22,14 @@ fn main() {
             "" => continue,
             _ => {
                 app_command_tree.set_by_path(String::from("Pogomega"), pathified.clone());
-                println!("OK: set node at path '{}' to '{}';", pathified.join(" "), app_command_tree.get_by_path(pathified).unwrap().value);
+                println!(
+                    "OK: set node at path '{}' to '{}';",
+                    pathified.join(" "),
+                    app_command_tree.get_by_path(pathified).unwrap().value
+                );
                 println!();
                 println!("PathTree now: [{:?}]", app_command_tree.tree);
-            },
+            }
         }
     }
 }
