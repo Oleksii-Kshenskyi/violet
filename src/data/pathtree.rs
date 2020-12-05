@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::util::treepath::TreePath;
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Node<T> {
@@ -10,8 +10,10 @@ pub struct PathTree<T> {
     pub tree: HashMap<String, Option<Node<T>>>,
 }
 
-impl<T> PathTree<T> where 
-    T: Clone {
+impl<T> PathTree<T>
+where
+    T: Clone,
+{
     pub fn new() -> Self {
         Self {
             tree: HashMap::new(),
@@ -19,7 +21,7 @@ impl<T> PathTree<T> where
     }
 
     pub fn set_by_path(&mut self, value: T, path: Vec<String>) {
-        if path.len() == 0 {
+        if path.is_empty() {
             panic!("ERROR: path to a node cannot be empty!");
         }
 
@@ -30,15 +32,13 @@ impl<T> PathTree<T> where
             .for_each(|(index, one_path)| {
                 if index == path.len() - 1 {
                     self.tree.insert(
-                        one_path.to_string(),
+                        one_path,
                         Some(Node {
                             value: value.to_owned(),
                         }),
                     );
                 } else {
-                    if !self.tree.contains_key(&one_path) {
-                        self.tree.insert(one_path.to_string(), None);
-                    }
+                    self.tree.entry(one_path).or_insert(None);
                 }
             })
     }
@@ -54,7 +54,6 @@ impl<T> PathTree<T> where
     pub fn does_node_exist(&self, path: Vec<String>) -> bool {
         self.tree.contains_key(&path.join(" "))
     }
-
 }
 
 #[test]
