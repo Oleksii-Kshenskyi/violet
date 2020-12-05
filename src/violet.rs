@@ -13,7 +13,7 @@ fn main() {
 
     loop {
         let user_input = io::input::get_user_input(get_violet_prompt());
-        let pathified = PathTree::create_path(&user_input);
+        let pathified = PathTree::<String>::create_path(&user_input);
         match user_input.as_str() {
             "exit" => {
                 println!("Bye! AYAYA");
