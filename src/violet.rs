@@ -1,8 +1,10 @@
 mod config;
 mod data;
 mod io;
+mod util;
 use config::*;
 use data::pathtree::PathTree;
+use util::treepath::TreePath;
 
 fn main() {
     println!("Welcome to Violet the command interpreter!");
@@ -13,7 +15,7 @@ fn main() {
 
     loop {
         let user_input = io::input::get_user_input(get_violet_prompt());
-        let pathified = PathTree::<String>::create_path(&user_input);
+        let pathified = TreePath::create_path(&user_input);
         match user_input.as_str() {
             "exit" => {
                 println!("Bye! AYAYA");
