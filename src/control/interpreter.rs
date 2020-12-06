@@ -13,6 +13,7 @@ impl Interpreter {
    pub fn new() -> Self {
       let mut builtins: PathTree<Command> = PathTree::new();
       builtins.set_by_path(Command::from(ExitCommand), TreePath::create_path("exit"));
+      builtins.set_by_path(Command::from(CurrentTimeCommand), TreePath::create_path("what time is it"));
       Self {
          builtin_commands: builtins
       }

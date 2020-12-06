@@ -12,3 +12,4 @@
 
 [dependencies]
     enum_dispatch = "0.3.4"
+    chrono = "0.4.19"
