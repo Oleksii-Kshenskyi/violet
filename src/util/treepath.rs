@@ -9,7 +9,8 @@ impl TreePath {
             .collect::<Vec<String>>()
     }
 
-    pub fn get_path_hierarchy(path: &[String]) -> Vec<String> {
+    pub fn get_path_hierarchy(path: &str) -> Vec<String> {
+        let path = TreePath::create_path(path);
         let mut current_path = String::new();
         let mut hierarchy: Vec<String> = vec![];
 
@@ -20,5 +21,9 @@ impl TreePath {
         });
 
         hierarchy
+    }
+
+    pub fn prettify(path: &str) -> String {
+        TreePath::create_path(path).join(" ")
     }
 }

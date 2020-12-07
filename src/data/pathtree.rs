@@ -20,12 +20,13 @@ where
         }
     }
 
-    pub fn set_by_path(&mut self, value: T, path: Vec<String>) {
+    pub fn set_by_path(&mut self, value: T, path: &str) {
         if path.is_empty() {
             panic!("ERROR: path to a node cannot be empty!");
         }
 
         let the_hierarchy = TreePath::get_path_hierarchy(&path);
+        let path = TreePath::create_path(path);
         the_hierarchy
             .into_iter()
             .enumerate()
@@ -43,7 +44,8 @@ where
             })
     }
 
-    pub fn get_by_path(&self, path: Vec<String>) -> Option<&Node<T>> {
+    pub fn get_by_path(&self, path: &str) -> Option<&Node<T>> {
+        let path = TreePath::create_path(&path);
         if let Some(node_option) = self.tree.get(&path.join(" ")) {
             node_option.as_ref()
         } else {
@@ -51,32 +53,32 @@ where
         }
     }
 
-    pub fn does_node_exist(&self, path: Vec<String>) -> bool {
-        self.tree.contains_key(&path.join(" "))
+    pub fn does_path_exist(&self, path: &str) -> bool {
+        self.tree.contains_key(&TreePath::prettify(path))
+    }
+
+    pub fn does_node_exist(&self, path: &str) -> bool {
+        if !self.does_path_exist(&path) {
+            false
+        } else {
+            self.get_by_path(&path).is_some()
+        }
     }
 }
 
 #[test]
 fn test_path_hierarchy() {
-    let test_vec: Vec<String> = vec![
+    let expected: Vec<String> = vec![
         "one".to_string(),
         "one two".to_string(),
         "one two three".to_string(),
     ];
-    let expected: Vec<String> = "one two three"
-        .split(" ")
-        .map(|elem| elem.to_string())
-        .collect::<Vec<String>>();
-    assert_eq!(test_vec, TreePath::get_path_hierarchy(&expected));
+    assert_eq!(expected, TreePath::get_path_hierarchy("one two three"));
 
-    let test_vec: Vec<String> = vec!["one".to_string()];
-    let expected: Vec<String> = "one"
-        .split(" ")
-        .map(|elem| elem.to_string())
-        .collect::<Vec<String>>();
-    assert_eq!(test_vec, TreePath::get_path_hierarchy(&expected));
+    let expected: Vec<String> = vec!["one".to_string()];
+    assert_eq!(expected, TreePath::get_path_hierarchy("one"));
 
-    let test_vec: Vec<String> = vec![
+    let expected: Vec<String> = vec![
         "そっか".to_string(),
         "そっか おふの".to_string(),
         "そっか おふの $%?рашин".to_string(),
@@ -84,102 +86,127 @@ fn test_path_hierarchy() {
         "そっか おふの $%?рашин /fourth .fifth".to_string(),
         "そっか おふの $%?рашин /fourth .fifth \\sixth".to_string(),
     ];
-    let expected: Vec<String> = "そっか おふの $%?рашин /fourth .fifth \\sixth"
-        .split(" ")
-        .map(|elem| elem.to_string())
-        .collect::<Vec<String>>();
-    assert_eq!(test_vec, TreePath::get_path_hierarchy(&expected));
+    assert_eq!(
+        expected,
+        TreePath::get_path_hierarchy("そっか おふの $%?рашин /fourth .fifth \\sixth")
+    );
 }
 
 #[test]
 fn test_tree_setters_and_getters() {
     let mut test_tree = PathTree::new();
-    let path = TreePath::create_path(&"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string());
 
-    test_tree.set_by_path("test garbage val".to_string(), path);
+    test_tree.set_by_path(
+        "test garbage val".to_string(),
+        "そっか おふの $%?рашин /fourth .fifth \\sixth",
+    );
+    assert_eq!(false, test_tree.does_node_exist("そっか"));
+    assert_eq!(true, test_tree.does_path_exist("そっか"));
+    assert_eq!(false, test_tree.does_node_exist("そっか おふの"));
+    assert_eq!(true, test_tree.does_path_exist("そっか おふの"));
+    assert_eq!(false, test_tree.does_node_exist("そっか おふの $%?рашин"));
+    assert_eq!(true, test_tree.does_path_exist("そっか おふの $%?рашин"));
     assert_eq!(
-        true,
-        test_tree.does_node_exist(TreePath::create_path(&"そっか".to_string()))
+        false,
+        test_tree.does_node_exist("そっか おふの $%?рашин /fourth")
     );
     assert_eq!(
         true,
-        test_tree.does_node_exist(TreePath::create_path(&"そっか おふの".to_string()))
+        test_tree.does_path_exist("そっか おふの $%?рашин /fourth")
+    );
+    assert_eq!(
+        false,
+        test_tree.does_node_exist("そっか おふの $%?рашин /fourth .fifth")
     );
     assert_eq!(
         true,
-        test_tree.does_node_exist(TreePath::create_path(&"そっか おふの $%?рашин".to_string()))
+        test_tree.does_path_exist("そっか おふの $%?рашин /fourth .fifth")
     );
     assert_eq!(
         true,
-        test_tree.does_node_exist(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth".to_string()
-        ))
+        test_tree.does_node_exist("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
     assert_eq!(
         true,
-        test_tree.does_node_exist(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth .fifth".to_string()
-        ))
+        test_tree.does_path_exist("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
+    assert_eq!(None, test_tree.get_by_path("そっか"));
+    assert_eq!(None, test_tree.get_by_path("そっか おふの"));
+    assert_eq!(None, test_tree.get_by_path("そっか おふの $%?рашин"));
     assert_eq!(
-        true,
-        test_tree.does_node_exist(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string()
-        ))
+        None,
+        test_tree.get_by_path("そっか おふの $%?рашин /fourth")
     );
     assert_eq!(
         None,
-        test_tree.get_by_path(TreePath::create_path(&"そっか".to_string()))
-    );
-    assert_eq!(
-        None,
-        test_tree.get_by_path(TreePath::create_path(&"そっか おふの".to_string()))
-    );
-    assert_eq!(
-        None,
-        test_tree.get_by_path(TreePath::create_path(&"そっか おふの $%?рашин".to_string()))
-    );
-    assert_eq!(
-        None,
-        test_tree.get_by_path(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth".to_string()
-        ))
-    );
-    assert_eq!(
-        None,
-        test_tree.get_by_path(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth .fifth".to_string()
-        ))
+        test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth")
     );
     assert_eq!(
         Some(&Node {
             value: String::from("test garbage val")
         }),
-        test_tree.get_by_path(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string()
-        ))
+        test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
 }
 
 #[test]
 fn check_empty_path_creation() {
     let mut test_tree = PathTree::new();
-    let path = TreePath::create_path(&"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string());
-    test_tree.set_by_path("test garbage val".to_string(), path.clone());
+    test_tree.set_by_path(
+        "test garbage val".to_string(),
+        "そっか おふの $%?рашин /fourth .fifth \\sixth",
+    );
 
     assert_eq!(
         Vec::<String>::new(),
         TreePath::create_path(&String::from(""))
     );
-    assert_eq!(Vec::<String>::new(), TreePath::get_path_hierarchy(&vec![]));
+    assert_eq!(Vec::<String>::new(), TreePath::get_path_hierarchy(""));
 
-    assert_eq!(false, test_tree.does_node_exist(vec![]));
-    assert_eq!(None, test_tree.get_by_path(vec![]));
+    assert_eq!(false, test_tree.does_node_exist(""));
+    assert_eq!(None, test_tree.get_by_path(""));
 }
 
 #[test]
 #[should_panic(expected = "ERROR: path to a node cannot be empty!")]
 fn test_setting_node_with_empty_path_panics() {
     let mut test_tree = PathTree::new();
-    test_tree.set_by_path("value".to_string(), vec![]);
+    test_tree.set_by_path("value".to_string(), "");
+}
+
+#[test]
+fn test_pathing_works_with_untrimmed_paths() {
+    let mut test_tree = PathTree::new();
+    let path = "        something           completely      bonkers       \n";
+
+    test_tree.set_by_path("test garbage val".to_string(), path);
+
+    assert_eq!(false, test_tree.does_node_exist("something"));
+    assert_eq!(true, test_tree.does_path_exist("something"));
+    assert_eq!(false, test_tree.does_node_exist("something completely"));
+    assert_eq!(true, test_tree.does_path_exist("something completely"));
+    assert_eq!(
+        true,
+        test_tree.does_node_exist("something completely bonkers")
+    );
+    assert_eq!(
+        true,
+        test_tree.does_path_exist("something completely bonkers")
+    );
+
+    assert_eq!(None, test_tree.get_by_path("something"));
+    assert_eq!(None, test_tree.get_by_path("something completely"));
+    assert_eq!(
+        Some(&Node {
+            value: String::from("test garbage val")
+        }),
+        test_tree.get_by_path("something completely bonkers")
+    );
+
+    assert_eq!(true, test_tree.tree.contains_key("something"));
+    assert_eq!(true, test_tree.tree.contains_key("something completely"));
+    assert_eq!(
+        true,
+        test_tree.tree.contains_key("something completely bonkers")
+    );
 }
