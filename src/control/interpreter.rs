@@ -45,12 +45,11 @@ impl Interpreter {
 
         loop {
             let user_input = input::get_user_input(config::get_violet_prompt());
-            let pathified = TreePath::create_path(&user_input);
             match user_input.as_str() {
                 "" => continue,
-                _ => match self.builtin_commands.get_by_path(pathified.clone()) {
+                _ => match self.builtin_commands.get_by_path(user_input.as_str()) {
                     None => {
-                        println!("{}: command does not exist.", pathified.join(" "));
+                        println!("{}: command does not exist.", TreePath::prettify(user_input.as_str()));
                         continue;
                     }
                     Some(cmd) => {

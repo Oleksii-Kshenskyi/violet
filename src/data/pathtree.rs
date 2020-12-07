@@ -43,7 +43,8 @@ where
             })
     }
 
-    pub fn get_by_path(&self, path: Vec<String>) -> Option<&Node<T>> {
+    pub fn get_by_path(&self, path: &str) -> Option<&Node<T>> {
+        let path = TreePath::create_path(&path);
         if let Some(node_option) = self.tree.get(&path.join(" ")) {
             node_option.as_ref()
         } else {
@@ -129,35 +130,35 @@ fn test_tree_setters_and_getters() {
     );
     assert_eq!(
         None,
-        test_tree.get_by_path(TreePath::create_path(&"そっか".to_string()))
+        test_tree.get_by_path("そっか")
     );
     assert_eq!(
         None,
-        test_tree.get_by_path(TreePath::create_path(&"そっか おふの".to_string()))
+        test_tree.get_by_path("そっか おふの")
     );
     assert_eq!(
         None,
-        test_tree.get_by_path(TreePath::create_path(&"そっか おふの $%?рашин".to_string()))
+        test_tree.get_by_path("そっか おふの $%?рашин")
     );
     assert_eq!(
         None,
-        test_tree.get_by_path(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth".to_string()
-        ))
+        test_tree.get_by_path(
+            "そっか おふの $%?рашин /fourth"
+        )
     );
     assert_eq!(
         None,
-        test_tree.get_by_path(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth .fifth".to_string()
-        ))
+        test_tree.get_by_path(
+            "そっか おふの $%?рашин /fourth .fifth"
+        )
     );
     assert_eq!(
         Some(&Node {
             value: String::from("test garbage val")
         }),
-        test_tree.get_by_path(TreePath::create_path(
-            &"そっか おふの $%?рашин /fourth .fifth \\sixth".to_string()
-        ))
+        test_tree.get_by_path(
+            "そっか おふの $%?рашин /fourth .fifth \\sixth"
+        )
     );
 }
 
@@ -174,7 +175,7 @@ fn check_empty_path_creation() {
     assert_eq!(Vec::<String>::new(), TreePath::get_path_hierarchy(&vec![]));
 
     assert_eq!(false, test_tree.does_node_exist(vec![]));
-    assert_eq!(None, test_tree.get_by_path(vec![]));
+    assert_eq!(None, test_tree.get_by_path(""));
 }
 
 #[test]

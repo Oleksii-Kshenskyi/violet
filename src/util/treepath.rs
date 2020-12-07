@@ -21,4 +21,8 @@ impl TreePath {
 
         hierarchy
     }
+
+    pub fn prettify(path: &str) -> String {
+        TreePath::create_path(path).join(" ")
+    }
 }
