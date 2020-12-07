@@ -21,14 +21,8 @@ impl Interpreter {
 
     fn set_all_builtins(builtins: &mut PathTree<Command>) {
         builtins.set_by_path(Command::from(ExitCommand), "exit");
-        builtins.set_by_path(
-            Command::from(CurrentTimeCommand),
-            "what time is it",
-        );
-        builtins.set_by_path(
-            Command::from(WhatsYourNameCommand),
-            "what is your name",
-        );
+        builtins.set_by_path(Command::from(CurrentTimeCommand), "what time is it");
+        builtins.set_by_path(Command::from(WhatsYourNameCommand), "what is your name");
     }
 
     pub fn run_repl(&mut self) {
@@ -49,7 +43,10 @@ impl Interpreter {
                 "" => continue,
                 _ => match self.builtin_commands.get_by_path(user_input.as_str()) {
                     None => {
-                        println!("{}: command does not exist.", TreePath::prettify(user_input.as_str()));
+                        println!(
+                            "{}: command does not exist.",
+                            TreePath::prettify(user_input.as_str())
+                        );
                         continue;
                     }
                     Some(cmd) => {
