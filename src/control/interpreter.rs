@@ -20,14 +20,14 @@ impl Interpreter {
     }
 
     fn set_all_builtins(builtins: &mut PathTree<Command>) {
-        builtins.set_by_path(Command::from(ExitCommand), TreePath::create_path("exit"));
+        builtins.set_by_path(Command::from(ExitCommand), "exit");
         builtins.set_by_path(
             Command::from(CurrentTimeCommand),
-            TreePath::create_path("what time is it"),
+            "what time is it",
         );
         builtins.set_by_path(
             Command::from(WhatsYourNameCommand),
-            TreePath::create_path("what is your name"),
+            "what is your name",
         );
     }
 
