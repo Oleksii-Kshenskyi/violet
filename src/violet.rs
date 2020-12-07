@@ -1,8 +1,8 @@
+mod config;
 mod control;
 mod data;
 mod io;
 mod util;
-mod config;
 
 use crate::control::interpreter::Interpreter;
 

@@ -1,5 +1,5 @@
-pub fn clone_uppercased(original: &String) -> String {
-    let cloned = original.clone();
+pub fn clone_uppercased(original: &str) -> String {
+    let cloned = original.to_string();
     let mut chars = cloned.chars();
     match chars.next() {
         None => String::new(),

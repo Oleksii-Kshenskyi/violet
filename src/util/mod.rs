@@ -1,2 +1,2 @@
-pub mod treepath;
 pub mod string;
+pub mod treepath;
