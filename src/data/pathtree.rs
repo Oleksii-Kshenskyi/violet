@@ -24,9 +24,9 @@ where
         if path.is_empty() {
             panic!("ERROR: path to a node cannot be empty!");
         }
-        let path = TreePath::create_path(path);
 
         let the_hierarchy = TreePath::get_path_hierarchy(&path);
+        let path = TreePath::create_path(path);
         the_hierarchy
             .into_iter()
             .enumerate()
@@ -78,12 +78,10 @@ fn test_path_hierarchy() {
         "one two".to_string(),
         "one two three".to_string(),
     ];
-    let test_vec: Vec<String> = TreePath::create_path("one two three");
-    assert_eq!(expected, TreePath::get_path_hierarchy(&test_vec));
+    assert_eq!(expected, TreePath::get_path_hierarchy("one two three"));
 
     let expected: Vec<String> = vec!["one".to_string()];
-    let test_vec: Vec<String> = TreePath::create_path("one");
-    assert_eq!(expected, TreePath::get_path_hierarchy(&test_vec));
+    assert_eq!(expected, TreePath::get_path_hierarchy("one"));
 
     let expected: Vec<String> = vec![
         "そっか".to_string(),
@@ -93,8 +91,7 @@ fn test_path_hierarchy() {
         "そっか おふの $%?рашин /fourth .fifth".to_string(),
         "そっか おふの $%?рашин /fourth .fifth \\sixth".to_string(),
     ];
-    let test_vec: Vec<String> = TreePath::create_path("そっか おふの $%?рашин /fourth .fifth \\sixth");
-    assert_eq!(expected, TreePath::get_path_hierarchy(&test_vec));
+    assert_eq!(expected, TreePath::get_path_hierarchy("そっか おふの $%?рашин /fourth .fifth \\sixth"));
 }
 
 #[test]
@@ -205,7 +202,7 @@ fn check_empty_path_creation() {
         Vec::<String>::new(),
         TreePath::create_path(&String::from(""))
     );
-    assert_eq!(Vec::<String>::new(), TreePath::get_path_hierarchy(&vec![]));
+    assert_eq!(Vec::<String>::new(), TreePath::get_path_hierarchy(""));
 
     assert_eq!(false, test_tree.does_node_exist(""));
     assert_eq!(None, test_tree.get_by_path(""));
