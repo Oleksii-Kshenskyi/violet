@@ -1,4 +1,5 @@
 use crate::util::treepath::TreePath;
+use crate::util::string::clone_uppercased;
 use crate::data::pathtree::PathTree;
 use crate::config;
 use crate::io::input;
@@ -27,8 +28,8 @@ impl Interpreter {
 
 
     pub fn run_repl(&mut self) {
-        println!("Welcome to Violet the command interpreter!");
-        println!("Violet's version is {};", config::get_violet_version());
+        println!("Welcome to {} the command interpreter!", clone_uppercased(&config::get_violet_name()));
+        println!("{}'s version is {};", clone_uppercased(&config::get_violet_name()), config::get_violet_version());
         println!("Created by {}.", config::get_violet_author());
 
         loop {
