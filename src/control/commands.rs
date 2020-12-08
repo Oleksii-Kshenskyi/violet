@@ -6,7 +6,6 @@ use enum_dispatch::*;
 use std::process::exit;
 
 use crate::config::get_violet_name;
-use crate::util::string::clone_uppercased;
 
 #[enum_dispatch]
 #[derive(Clone)]
@@ -47,7 +46,7 @@ impl Action for WhatsYourNameCommand {
     fn execute(&self) {
         println!(
             "My name is {}! Nice to meet you ^_^",
-            clone_uppercased(&get_violet_name())
+            &get_violet_name()
         );
     }
 }
