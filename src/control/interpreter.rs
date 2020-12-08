@@ -20,9 +20,9 @@ impl Interpreter {
     }
 
     fn set_all_builtins(builtins: &mut PathTree<Command>) {
-        builtins.set_by_path(Command::from(ExitCommand), "exit");
-        builtins.set_by_path(Command::from(CurrentTimeCommand), "what time is it");
-        builtins.set_by_path(Command::from(WhatsYourNameCommand), "what is your name");
+        builtins.set_by_path(Command::from(ExitCommand::new()), "exit");
+        builtins.set_by_path(Command::from(CurrentTimeCommand::new()), "what time is it");
+        builtins.set_by_path(Command::from(WhatsYourNameCommand::new()), "what is your name");
     }
 
     pub fn run_repl(&mut self) {

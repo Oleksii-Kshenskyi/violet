@@ -44,10 +44,10 @@ where
             })
     }
 
-    pub fn get_by_path(&self, path: &str) -> Option<&Node<T>> {
+    pub fn get_by_path(&mut self, path: &str) -> Option<&mut Node<T>> {
         let path = TreePath::create_path(&path);
-        if let Some(node_option) = self.tree.get(&path.join(" ")) {
-            node_option.as_ref()
+        if let Some(node_option) = self.tree.get_mut(&path.join(" ")) {
+            node_option.as_mut()
         } else {
             None
         }
@@ -57,7 +57,7 @@ where
         self.tree.contains_key(&TreePath::prettify(path))
     }
 
-    pub fn does_node_exist(&self, path: &str) -> bool {
+    pub fn does_node_exist(&mut self, path: &str) -> bool {
         if !self.does_path_exist(&path) {
             false
         } else {
@@ -142,7 +142,7 @@ fn test_tree_setters_and_getters() {
         test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth")
     );
     assert_eq!(
-        Some(&Node {
+        Some(&mut Node {
             value: String::from("test garbage val")
         }),
         test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth \\sixth")
@@ -197,7 +197,7 @@ fn test_pathing_works_with_untrimmed_paths() {
     assert_eq!(None, test_tree.get_by_path("something"));
     assert_eq!(None, test_tree.get_by_path("something completely"));
     assert_eq!(
-        Some(&Node {
+        Some(&mut Node {
             value: String::from("test garbage val")
         }),
         test_tree.get_by_path("something completely bonkers")
