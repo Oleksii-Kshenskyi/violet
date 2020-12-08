@@ -3,7 +3,7 @@ extern crate enum_dispatch;
 use chrono::Local;
 use enum_dispatch::*;
 
-use std::{fmt::Display, process::exit};
+use std::{fmt::Display, io::Write, process::exit};
 
 use crate::config::get_violet_name;
 
@@ -20,9 +20,9 @@ pub trait Action {
     fn execute(&mut self);
 }
 
-pub trait Printable: Action {
+pub trait Printable {
     fn what<T: Display>(&mut self, print_this: T) -> &mut Self;
-    fn print(&self);
+    fn print_to<W: Write>(&self, print_to_this: W);
 }
 
 #[derive(Clone)]
@@ -41,13 +41,15 @@ impl Printable for ExitCommand {
         self.what = print_this.to_string();
         self
     }
-    fn print(&self) {
-        println!("{}", self.what);
+    fn print_to<W: Write>(&self, mut print_to_this: W) {
+        let err_message = "ERROR: exit: couldn't write to the supplied writer!";
+        print_to_this.write(self.what.as_bytes()).expect(err_message);
+        print_to_this.flush().expect(err_message);
     }
 }
 impl Action for ExitCommand {
     fn execute(&mut self) {
-        self.what("BYE! AYAYA ^_^").print();
+        self.what("BYE! AYAYA ^_^\n").print_to(std::io::stdout());
         exit(0);
     }
 }
@@ -68,13 +70,15 @@ impl Printable for CurrentTimeCommand {
         self.time = print_this.to_string();
         self
     }
-    fn print(&self) {
-        println!("Your system clock says it's {} now!", self.time);
+    fn print_to<W: Write>(&self, mut print_to_this: W) {
+        let err_message = "ERROR: current time command: couldn't write to the supplied writer!";
+        print_to_this.write(format!("Your system clock says it's {} now!\n", self.time).as_bytes()).expect(err_message);
+        print_to_this.flush().expect(err_message);
     }
 }
 impl Action for CurrentTimeCommand {
     fn execute(&mut self) {
-        self.what(Local::now().format("%I:%M %p")).print();
+        self.what(Local::now().format("%I:%M %p")).print_to(std::io::stdout());
     }
 }
 
@@ -94,12 +98,14 @@ impl Printable for WhatsYourNameCommand {
         self.name = print_this.to_string();
         self
     }
-    fn print(&self) {
-        println!("My name is {}! Nice to meet you ^_^", self.name);
+    fn print_to<W: Write>(&self, mut print_to_this: W) {
+        let err_message = "ERROR: my name command: couldn't write to the supplied writer!";
+        print_to_this.write(format!("My name is {}! Nice to meet you ^_^\n", self.name).as_bytes()).expect(err_message);
+        print_to_this.flush().expect(err_message);
     }
 }
 impl Action for WhatsYourNameCommand {
     fn execute(&mut self) {
-        self.what(&get_violet_name()).print();
+        self.what(&get_violet_name()).print_to(std::io::stdout());
     }
 }
