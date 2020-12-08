@@ -1,3 +1,5 @@
+use crate::util::string::clone_uppercased;
+
 const VIOLET_UNKNOWN: &str = "???";
 const VIOLET_VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
 const VIOLET_AUTHOR: Option<&'static str> = option_env!("CARGO_PKG_AUTHORS");
@@ -17,5 +19,5 @@ pub fn get_violet_prompt() -> String {
 }
 
 pub fn get_violet_name() -> String {
-    VIOLET_NAME.unwrap_or(VIOLET_UNKNOWN).to_owned()
+    clone_uppercased(VIOLET_NAME.unwrap_or(VIOLET_UNKNOWN))
 }
