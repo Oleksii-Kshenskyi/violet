@@ -64,6 +64,28 @@ where
             self.get_by_path(&path).is_some()
         }
     }
+
+
+    pub fn check_for_argumented_path(&self, path: &str) -> Option<String> {
+        let pathvec = TreePath::create_path(path);
+        let mut argumented: Vec<String> = vec![];
+        for path in TreePath::get_path_hierarchy(&pathvec.join(" ").to_owned()) {
+            let previous_state = argumented.clone();
+            argumented = TreePath::create_path(&TreePath::append_path_node(&argumented, TreePath::get_last_node(&path).unwrap().as_str()));
+            if PathTree::does_path_exist(self, &argumented.join(" ")) {
+                continue;
+            }
+            else {
+                let argified_from_previous = TreePath::append_path_node(&previous_state, "<ARG>");
+                if PathTree::does_path_exist(self, &argified_from_previous) {
+                    argumented = TreePath::create_path(&argified_from_previous);
+                }
+                else { return None; }
+            }
+        }
+
+        Some(path.to_owned())
+    }
 }
 
 #[test]
@@ -209,4 +231,24 @@ fn test_pathing_works_with_untrimmed_paths() {
         true,
         test_tree.tree.contains_key("something completely bonkers")
     );
+}
+
+#[test]
+fn check_argumented_paths() {
+    let mut test_tree = PathTree::new();
+    test_tree.set_by_path("garbage", "this is <ARG> another <ARG>");
+    test_tree.set_by_path("garbage", "oh my god its <ARG> working <ARG> !!!");
+    test_tree.set_by_path("garbage", "<ARG> I cant believe <ARG>");
+
+    assert_eq!(Some(String::from("this is just another test")), test_tree.check_for_argumented_path("this is just another test"));
+    assert_eq!(Some(String::from("this is pooka another kooka")), test_tree.check_for_argumented_path("this is pooka another kooka"));
+    assert_eq!(Some(String::from("this is $$ another ---")), test_tree.check_for_argumented_path("this is $$ another ---"));
+    assert_eq!(None, test_tree.check_for_argumented_path("this is not just another test"));
+    assert_eq!(Some(String::from("oh my god its actually working OMG !!!")), test_tree.check_for_argumented_path("oh my god its actually working OMG !!!"));
+    assert_eq!(Some(String::from("oh my god its kekek working lulul !!!")), test_tree.check_for_argumented_path("oh my god its kekek working lulul !!!"));
+    assert_eq!(None, test_tree.check_for_argumented_path("oh my god its not actually working lulul ? !!!"));
+    assert_eq!(Some(String::from("Jesus I cant believe it!!!")), test_tree.check_for_argumented_path("Jesus I cant believe it!!!"));
+    assert_eq!(Some(String::from("123 I cant believe 584")), test_tree.check_for_argumented_path("123 I cant believe 584"));
+    assert_eq!(Some(String::from("<ARG> I cant believe <ARG>")), test_tree.check_for_argumented_path("<ARG> I cant believe <ARG>"));
+    assert_eq!(None, test_tree.check_for_argumented_path("OMG I can believe this"));
 }
