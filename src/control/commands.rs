@@ -13,6 +13,7 @@ pub enum Command {
     ExitCommand,
     CurrentTimeCommand,
     WhatsYourNameCommand,
+    SayThisAndThatCommand
 }
 
 #[enum_dispatch(Command)]
@@ -48,5 +49,14 @@ impl Action for WhatsYourNameCommand {
             "My name is {}! Nice to meet you ^_^",
             &get_violet_name()
         );
+    }
+}
+
+#[derive(Clone)]
+pub struct SayThisAndThatCommand;
+impl Action for SayThisAndThatCommand {
+    fn execute(&self, args: Vec<String>) {
+        if args.len() != 2 { println!("Something went horribly wrong..."); return; }
+        println!("Gotcha. Saying {} and {}!", args.get(0).unwrap(), args.get(1).unwrap());
     }
 }

@@ -66,7 +66,7 @@ where
     }
 
 
-    pub fn get_args_vec_from_path(&self, path: &str) -> Vec<String> {
+    pub fn get_command_and_args_from_path(&self, path: &str) -> Option<(String, Vec<String>)> {
         let pathvec = TreePath::create_path(path);
         let mut args: Vec<String> = vec![];
         let mut argumented: Vec<String> = vec![];
@@ -82,11 +82,11 @@ where
                     argumented = TreePath::create_path(&argified_from_previous);
                     args.push(TreePath::get_last_node(&path).unwrap());
                 }
-                else { return vec![] }
+                else { return None }
             }
         }
 
-        args
+        Some((argumented.join(" "), args))
     }
 }
 
@@ -243,15 +243,18 @@ fn check_argumented_paths() {
     test_tree.set_by_path("garbage", "<ARG> I cant believe <ARG>");
     test_tree.set_by_path("garbage", "<ARG> and <ARG> and <ARG> and <ARG> and <ARG> and KEKW");
 
-    assert_eq!(vec!["just", "test"], test_tree.get_args_vec_from_path("this is just another test"));
-    assert_eq!(vec!["pooka", "kooka"], test_tree.get_args_vec_from_path("this is pooka another kooka"));
-    assert_eq!(vec!["$$", "---"], test_tree.get_args_vec_from_path("this is $$ another ---"));
-    assert_eq!(Vec::<String>::new(), test_tree.get_args_vec_from_path("this is not just another test"));
-    assert_eq!(vec!["actually", "OMG"], test_tree.get_args_vec_from_path("oh my god its actually working OMG !!!"));
-    assert_eq!(vec!["kekek", "lulul"], test_tree.get_args_vec_from_path("oh my god its kekek working lulul !!!"));
-    assert_eq!(Vec::<String>::new(), test_tree.get_args_vec_from_path("oh my god its not actually working lulul ? !!!"));
-    assert_eq!(vec!["Jesus", "it!!!"], test_tree.get_args_vec_from_path("Jesus I cant believe it!!!"));
-    assert_eq!(vec!["123", "584"], test_tree.get_args_vec_from_path("123 I cant believe 584"));
-    assert_eq!(Vec::<String>::new(), test_tree.get_args_vec_from_path("OMG I can believe this"));
-    assert_eq!(vec!["one", "two", "three", "four", "five"], test_tree.get_args_vec_from_path("one and two and three and four and five and KEKW"));
+    assert_eq!(Some((String::from("this is <ARG> another <ARG>"), vec![String::from("just"), String::from("test")])), test_tree.get_command_and_args_from_path("this is just another test"));
+    assert_eq!(Some((String::from("this is <ARG> another <ARG>"), vec![String::from("pooka"), String::from("kooka")])), test_tree.get_command_and_args_from_path("this is pooka another kooka"));
+    assert_eq!(Some((String::from("this is <ARG> another <ARG>"), vec![String::from("$$"), String::from("---")])), test_tree.get_command_and_args_from_path("this is $$ another ---"));
+    assert_eq!(None, test_tree.get_command_and_args_from_path("this is not just another test"));
+
+    assert_eq!(Some((String::from("oh my god its <ARG> working <ARG> !!!"), vec![String::from("actually"), String::from("OMG")])), test_tree.get_command_and_args_from_path("oh my god its actually working OMG !!!"));
+    assert_eq!(Some((String::from("oh my god its <ARG> working <ARG> !!!"), vec![String::from("kekek"), String::from("lulul")])), test_tree.get_command_and_args_from_path("oh my god its kekek working lulul !!!"));
+    assert_eq!(None, test_tree.get_command_and_args_from_path("oh my god its not actually working lulul ? !!!"));
+
+    assert_eq!(Some((String::from("<ARG> I cant believe <ARG>"), vec![String::from("Jesus"), String::from("it!!!")])), test_tree.get_command_and_args_from_path("Jesus I cant believe it!!!"));
+    assert_eq!(Some((String::from("<ARG> I cant believe <ARG>"), vec![String::from("123"), String::from("584")])), test_tree.get_command_and_args_from_path("123 I cant believe 584"));
+    assert_eq!(None, test_tree.get_command_and_args_from_path("OMG I can believe this"));
+
+    assert_eq!(Some((String::from("<ARG> and <ARG> and <ARG> and <ARG> and <ARG> and KEKW"), vec![String::from("one"), String::from("two"), String::from("three"), String::from("four"), String::from("five")])), test_tree.get_command_and_args_from_path("one and two and three and four and five and KEKW"));
 }
