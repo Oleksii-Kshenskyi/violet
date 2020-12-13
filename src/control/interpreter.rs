@@ -23,6 +23,10 @@ impl Interpreter {
         builtins.set_by_path(Command::from(ExitCommand), "exit");
         builtins.set_by_path(Command::from(CurrentTimeCommand), "what time is it");
         builtins.set_by_path(Command::from(WhatsYourNameCommand), "what is your name");
+        builtins.set_by_path(
+            Command::from(SayThisAndThatCommand),
+            "please say <ARG> and <ARG>",
+        );
     }
 
     pub fn run_repl(&mut self) {
@@ -39,20 +43,20 @@ impl Interpreter {
 
         loop {
             let user_input = input::get_user_input(config::get_violet_prompt());
-            match user_input.as_str() {
-                "" => continue,
-                _ => match self.builtin_commands.get_by_path(user_input.as_str()) {
-                    None => {
-                        println!(
-                            "{}: command does not exist.",
-                            TreePath::prettify(user_input.as_str())
-                        );
-                        continue;
-                    }
-                    Some(cmd) => {
-                        cmd.value.execute();
-                    }
-                },
+            match self
+                .builtin_commands
+                .get_command_and_args_from_path(&user_input)
+            {
+                None => {
+                    println!(
+                        "{}: command does not exist.",
+                        TreePath::prettify(user_input.as_str())
+                    );
+                }
+                Some((path, args)) => {
+                    let cmd = self.builtin_commands.get_by_path(&path).unwrap();
+                    cmd.value.execute(args);
+                }
             }
         }
     }
