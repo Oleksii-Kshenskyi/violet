@@ -50,7 +50,7 @@ impl Interpreter {
                         continue;
                     }
                     Some(cmd) => {
-                        cmd.value.execute();
+                        cmd.value.execute(self.builtin_commands.get_args_vec_from_path(&user_input));
                     }
                 },
             }

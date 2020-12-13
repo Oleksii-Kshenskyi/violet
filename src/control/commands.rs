@@ -17,13 +17,13 @@ pub enum Command {
 
 #[enum_dispatch(Command)]
 pub trait Action {
-    fn execute(&self);
+    fn execute(&self, args: Vec<String>);
 }
 
 #[derive(Clone)]
 pub struct ExitCommand;
 impl Action for ExitCommand {
-    fn execute(&self) {
+    fn execute(&self, _args: Vec<String>) {
         println!("BYE! AYAYA ^_^");
         exit(0);
     }
@@ -32,7 +32,7 @@ impl Action for ExitCommand {
 #[derive(Clone)]
 pub struct CurrentTimeCommand;
 impl Action for CurrentTimeCommand {
-    fn execute(&self) {
+    fn execute(&self, _args: Vec<String>) {
         println!(
             "Your system clock says it's {} now!",
             Local::now().format("%I:%M %p")
@@ -43,7 +43,7 @@ impl Action for CurrentTimeCommand {
 #[derive(Clone)]
 pub struct WhatsYourNameCommand;
 impl Action for WhatsYourNameCommand {
-    fn execute(&self) {
+    fn execute(&self, _args: Vec<String>) {
         println!(
             "My name is {}! Nice to meet you ^_^",
             &get_violet_name()
