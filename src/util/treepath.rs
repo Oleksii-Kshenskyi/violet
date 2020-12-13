@@ -27,7 +27,7 @@ impl TreePath {
         TreePath::create_path(path).join(" ")
     }
 
-    pub fn append_path_node(path: &Vec<String>, node_to_append: &str) -> String {
+    pub fn append_path_node(path: &[String], node_to_append: &str) -> String {
         let mut newpathvec = path.to_owned();
         newpathvec.push(node_to_append.to_owned());
         newpathvec.join(" ")
@@ -37,7 +37,7 @@ impl TreePath {
         let path = TreePath::create_path(of_path);
         match path.last() {
             Some(node) => Some(node.to_owned()),
-            None => None
+            None => None,
         }
     }
 }

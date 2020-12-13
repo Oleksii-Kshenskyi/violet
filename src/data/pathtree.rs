@@ -65,24 +65,26 @@ where
         }
     }
 
-
     pub fn get_command_and_args_from_path(&self, path: &str) -> Option<(String, Vec<String>)> {
         let pathvec = TreePath::create_path(path);
         let mut args: Vec<String> = vec![];
         let mut argumented: Vec<String> = vec![];
-        for path in TreePath::get_path_hierarchy(&pathvec.join(" ").to_owned()) {
+        for path in TreePath::get_path_hierarchy(&pathvec.join(" ")) {
             let previous_state = argumented.clone();
-            argumented = TreePath::create_path(&TreePath::append_path_node(&argumented, TreePath::get_last_node(&path).unwrap().as_str()));
+            argumented = TreePath::create_path(&TreePath::append_path_node(
+                &argumented,
+                TreePath::get_last_node(&path).unwrap().as_str(),
+            ));
             if PathTree::does_path_exist(self, &argumented.join(" ")) {
                 continue;
-            }
-            else {
+            } else {
                 let argified_from_previous = TreePath::append_path_node(&previous_state, "<ARG>");
                 if PathTree::does_path_exist(self, &argified_from_previous) {
                     argumented = TreePath::create_path(&argified_from_previous);
                     args.push(TreePath::get_last_node(&path).unwrap());
+                } else {
+                    return None;
                 }
-                else { return None }
             }
         }
 
@@ -241,20 +243,87 @@ fn check_argumented_paths() {
     test_tree.set_by_path("garbage", "this is <ARG> another <ARG>");
     test_tree.set_by_path("garbage", "oh my god its <ARG> working <ARG> !!!");
     test_tree.set_by_path("garbage", "<ARG> I cant believe <ARG>");
-    test_tree.set_by_path("garbage", "<ARG> and <ARG> and <ARG> and <ARG> and <ARG> and KEKW");
+    test_tree.set_by_path(
+        "garbage",
+        "<ARG> and <ARG> and <ARG> and <ARG> and <ARG> and KEKW",
+    );
 
-    assert_eq!(Some((String::from("this is <ARG> another <ARG>"), vec![String::from("just"), String::from("test")])), test_tree.get_command_and_args_from_path("this is just another test"));
-    assert_eq!(Some((String::from("this is <ARG> another <ARG>"), vec![String::from("pooka"), String::from("kooka")])), test_tree.get_command_and_args_from_path("this is pooka another kooka"));
-    assert_eq!(Some((String::from("this is <ARG> another <ARG>"), vec![String::from("$$"), String::from("---")])), test_tree.get_command_and_args_from_path("this is $$ another ---"));
-    assert_eq!(None, test_tree.get_command_and_args_from_path("this is not just another test"));
+    assert_eq!(
+        Some((
+            String::from("this is <ARG> another <ARG>"),
+            vec![String::from("just"), String::from("test")]
+        )),
+        test_tree.get_command_and_args_from_path("this is just another test")
+    );
+    assert_eq!(
+        Some((
+            String::from("this is <ARG> another <ARG>"),
+            vec![String::from("pooka"), String::from("kooka")]
+        )),
+        test_tree.get_command_and_args_from_path("this is pooka another kooka")
+    );
+    assert_eq!(
+        Some((
+            String::from("this is <ARG> another <ARG>"),
+            vec![String::from("$$"), String::from("---")]
+        )),
+        test_tree.get_command_and_args_from_path("this is $$ another ---")
+    );
+    assert_eq!(
+        None,
+        test_tree.get_command_and_args_from_path("this is not just another test")
+    );
 
-    assert_eq!(Some((String::from("oh my god its <ARG> working <ARG> !!!"), vec![String::from("actually"), String::from("OMG")])), test_tree.get_command_and_args_from_path("oh my god its actually working OMG !!!"));
-    assert_eq!(Some((String::from("oh my god its <ARG> working <ARG> !!!"), vec![String::from("kekek"), String::from("lulul")])), test_tree.get_command_and_args_from_path("oh my god its kekek working lulul !!!"));
-    assert_eq!(None, test_tree.get_command_and_args_from_path("oh my god its not actually working lulul ? !!!"));
+    assert_eq!(
+        Some((
+            String::from("oh my god its <ARG> working <ARG> !!!"),
+            vec![String::from("actually"), String::from("OMG")]
+        )),
+        test_tree.get_command_and_args_from_path("oh my god its actually working OMG !!!")
+    );
+    assert_eq!(
+        Some((
+            String::from("oh my god its <ARG> working <ARG> !!!"),
+            vec![String::from("kekek"), String::from("lulul")]
+        )),
+        test_tree.get_command_and_args_from_path("oh my god its kekek working lulul !!!")
+    );
+    assert_eq!(
+        None,
+        test_tree.get_command_and_args_from_path("oh my god its not actually working lulul ? !!!")
+    );
 
-    assert_eq!(Some((String::from("<ARG> I cant believe <ARG>"), vec![String::from("Jesus"), String::from("it!!!")])), test_tree.get_command_and_args_from_path("Jesus I cant believe it!!!"));
-    assert_eq!(Some((String::from("<ARG> I cant believe <ARG>"), vec![String::from("123"), String::from("584")])), test_tree.get_command_and_args_from_path("123 I cant believe 584"));
-    assert_eq!(None, test_tree.get_command_and_args_from_path("OMG I can believe this"));
+    assert_eq!(
+        Some((
+            String::from("<ARG> I cant believe <ARG>"),
+            vec![String::from("Jesus"), String::from("it!!!")]
+        )),
+        test_tree.get_command_and_args_from_path("Jesus I cant believe it!!!")
+    );
+    assert_eq!(
+        Some((
+            String::from("<ARG> I cant believe <ARG>"),
+            vec![String::from("123"), String::from("584")]
+        )),
+        test_tree.get_command_and_args_from_path("123 I cant believe 584")
+    );
+    assert_eq!(
+        None,
+        test_tree.get_command_and_args_from_path("OMG I can believe this")
+    );
 
-    assert_eq!(Some((String::from("<ARG> and <ARG> and <ARG> and <ARG> and <ARG> and KEKW"), vec![String::from("one"), String::from("two"), String::from("three"), String::from("four"), String::from("five")])), test_tree.get_command_and_args_from_path("one and two and three and four and five and KEKW"));
+    assert_eq!(
+        Some((
+            String::from("<ARG> and <ARG> and <ARG> and <ARG> and <ARG> and KEKW"),
+            vec![
+                String::from("one"),
+                String::from("two"),
+                String::from("three"),
+                String::from("four"),
+                String::from("five")
+            ]
+        )),
+        test_tree
+            .get_command_and_args_from_path("one and two and three and four and five and KEKW")
+    );
 }
