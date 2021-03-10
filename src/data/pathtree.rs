@@ -65,7 +65,11 @@ where
         }
     }
 
-    pub fn get_command_and_args_from_path(&self, path: &str) -> Option<(String, Vec<String>)> {
+    fn attempt_multiword_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
+        None
+    }
+
+    fn attempt_single_word_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
         let pathvec = TreePath::create_path(path);
         let mut args: Vec<String> = vec![];
         let mut argumented: Vec<String> = vec![];
@@ -75,11 +79,11 @@ where
                 &argumented,
                 TreePath::get_last_node(&path).unwrap().as_str(),
             ));
-            if PathTree::does_path_exist(self, &argumented.join(" ")) {
+            if self.does_path_exist(&argumented.join(" ")) {
                 continue;
             } else {
                 let argified_from_previous = TreePath::append_path_node(&previous_state, "<ARG>");
-                if PathTree::does_path_exist(self, &argified_from_previous) {
+                if self.does_path_exist(&argified_from_previous) {
                     argumented = TreePath::create_path(&argified_from_previous);
                     args.push(TreePath::get_last_node(&path).unwrap());
                 } else {
@@ -89,6 +93,15 @@ where
         }
 
         Some((argumented.join(" "), args))
+    }
+
+    pub fn get_command_and_args_from_path(&self, path: &str) -> Option<(String, Vec<String>)> {
+        if let Some((mw_command, mw_args)) = self.attempt_multiword_parsing(path) {
+            Some((mw_command, mw_args))
+        }
+        else {
+            self.attempt_single_word_parsing(path)
+        }
     }
 }
 
