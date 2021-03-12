@@ -66,13 +66,73 @@ where
     }
 
     fn attempt_multiword_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
-        None
+        let nodes = TreePath::create_path(path);
+        let mut slice_indices: (Vec<u32>, Vec<u32>) = (vec![], vec![]);
+        let mut args: Vec<String> = vec![];
+        let mut resulting_pathvec: Vec<String> = vec![];
+
+        nodes.iter().enumerate().for_each(|(index, node)| {
+            if node.starts_with("\"") {
+                slice_indices.0.push(index as u32);
+            }
+            if node.ends_with("\"") {
+                slice_indices.1.push(index as u32);
+            }
+        });
+
+        if slice_indices.0.is_empty() || slice_indices.1.is_empty() {
+            return None;
+        }
+        if slice_indices.0.len() != slice_indices.1.len() {
+            return None;
+        }
+
+        let mut previous_end_index: u32 = 0;
+        let mut loop_validation = true;
+        slice_indices.0.iter().enumerate().for_each(|(index, start)| {
+            let end = slice_indices.1.get(index).unwrap();
+            if *start > *end || *start < previous_end_index {
+                loop_validation = false;
+            }
+
+            previous_end_index = *end;
+        });
+        if !loop_validation {
+            return None;
+        }
+
+        for arg_number in 0..slice_indices.0.len() - 1 {
+            let lower_index = slice_indices.0[arg_number] as usize;
+            let upper_index = slice_indices.1[arg_number] as usize;
+            let new_arg = &nodes[lower_index..=upper_index];
+            args.push(new_arg.join(" "));
+        }
+
+        let mut started: bool = false;
+        for nodes_index in 0..nodes.len() - 1 {
+            if nodes[nodes_index].starts_with("\"") {
+                started = true;
+                resulting_pathvec.push("<ARG>".to_owned());
+            }
+
+            if !nodes[nodes_index].starts_with("\"") && !nodes[nodes_index].ends_with("\"") && !started
+            {
+                resulting_pathvec.push(nodes[nodes_index].clone());
+            }
+
+            if nodes[nodes_index].ends_with("\"") {
+                started = false;
+            }
+        }
+
+        Some((resulting_pathvec.join(" "), args))
     }
 
     fn attempt_single_word_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
         let pathvec = TreePath::create_path(path);
         let mut args: Vec<String> = vec![];
         let mut argumented: Vec<String> = vec![];
+
         for path in TreePath::get_path_hierarchy(&pathvec.join(" ")) {
             let previous_state = argumented.clone();
             argumented = TreePath::create_path(&TreePath::append_path_node(
