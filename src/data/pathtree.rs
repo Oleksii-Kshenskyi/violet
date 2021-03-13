@@ -129,7 +129,13 @@ where
             }
         }
 
-        Some((resulting_pathvec.join(" "), args))
+        let resulting_path = resulting_pathvec.join(" ");
+        if self.does_node_exist(resulting_path.clone().as_str()) {
+            Some((resulting_path, args))
+        }
+        else {
+            None
+        }
     }
 
     fn attempt_single_word_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
