@@ -110,7 +110,7 @@ where
             return None;
         }
 
-        for arg_number in 0..=slice_indices.0.len() - 1 {
+        for arg_number in 0..slice_indices.0.len() {
             let lower_index = slice_indices.0[arg_number] as usize;
             let upper_index = slice_indices.1[arg_number] as usize;
             
@@ -122,7 +122,7 @@ where
         }
 
         let mut started: bool = false;
-        for nodes_index in 0..nodes.len() - 1 {
+        for nodes_index in 0..nodes.len() {
             if nodes[nodes_index].starts_with("\"") {
                 started = true;
                 resulting_pathvec.push("<ARG>".to_owned());
