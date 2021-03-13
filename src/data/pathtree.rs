@@ -57,6 +57,14 @@ where
         self.tree.contains_key(&TreePath::prettify(path))
     }
 
+    pub fn does_node_exist(&self, path: &str) -> bool {
+        if !self.does_path_exist(&path) {
+            false
+        } else {
+            self.get_by_path(&path).is_some()
+        }
+    }
+
     fn attempt_multiword_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
         let nodes = TreePath::create_path(path);
         let mut slice_indices: (Vec<u32>, Vec<u32>) = (vec![], vec![]);
@@ -93,15 +101,11 @@ where
             return None;
         }
 
-        for arg_number in 0..=slice_indices.0.len() - 1 {
+        for arg_number in 0..slice_indices.0.len() - 1 {
             let lower_index = slice_indices.0[arg_number] as usize;
             let upper_index = slice_indices.1[arg_number] as usize;
-
-            let mut new_arg: Vec<String> = vec![];
-            new_arg.extend_from_slice(&nodes[lower_index..=upper_index]);
-            let mut new_arg = new_arg.join(" ");
-            new_arg.remove(0); new_arg.remove(new_arg.len() - 1);
-            args.push(new_arg);
+            let new_arg = &nodes[lower_index..=upper_index];
+            args.push(new_arg.join(" "));
         }
 
         let mut started: bool = false;
@@ -195,16 +199,31 @@ fn test_tree_setters_and_getters() {
         "test garbage val".to_string(),
         "そっか おふの $%?рашин /fourth .fifth \\sixth",
     );
+    assert_eq!(false, test_tree.does_node_exist("そっか"));
     assert_eq!(true, test_tree.does_path_exist("そっか"));
+    assert_eq!(false, test_tree.does_node_exist("そっか おふの"));
     assert_eq!(true, test_tree.does_path_exist("そっか おふの"));
+    assert_eq!(false, test_tree.does_node_exist("そっか おふの $%?рашин"));
     assert_eq!(true, test_tree.does_path_exist("そっか おふの $%?рашин"));
+    assert_eq!(
+        false,
+        test_tree.does_node_exist("そっか おふの $%?рашин /fourth")
+    );
     assert_eq!(
         true,
         test_tree.does_path_exist("そっか おふの $%?рашин /fourth")
     );
     assert_eq!(
+        false,
+        test_tree.does_node_exist("そっか おふの $%?рашин /fourth .fifth")
+    );
+    assert_eq!(
         true,
         test_tree.does_path_exist("そっか おふの $%?рашин /fourth .fifth")
+    );
+    assert_eq!(
+        true,
+        test_tree.does_node_exist("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
     assert_eq!(
         true,
@@ -243,6 +262,7 @@ fn check_empty_path_creation() {
     );
     assert_eq!(Vec::<String>::new(), TreePath::get_path_hierarchy(""));
 
+    assert_eq!(false, test_tree.does_node_exist(""));
     assert_eq!(None, test_tree.get_by_path(""));
 }
 
@@ -260,8 +280,14 @@ fn test_pathing_works_with_untrimmed_paths() {
 
     test_tree.set_by_path("test garbage val".to_string(), path);
 
+    assert_eq!(false, test_tree.does_node_exist("something"));
     assert_eq!(true, test_tree.does_path_exist("something"));
+    assert_eq!(false, test_tree.does_node_exist("something completely"));
     assert_eq!(true, test_tree.does_path_exist("something completely"));
+    assert_eq!(
+        true,
+        test_tree.does_node_exist("something completely bonkers")
+    );
     assert_eq!(
         true,
         test_tree.does_path_exist("something completely bonkers")
