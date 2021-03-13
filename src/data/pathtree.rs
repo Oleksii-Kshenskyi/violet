@@ -101,11 +101,15 @@ where
             return None;
         }
 
-        for arg_number in 0..slice_indices.0.len() - 1 {
+        for arg_number in 0..=slice_indices.0.len() - 1 {
             let lower_index = slice_indices.0[arg_number] as usize;
             let upper_index = slice_indices.1[arg_number] as usize;
-            let new_arg = &nodes[lower_index..=upper_index];
-            args.push(new_arg.join(" "));
+            
+            let mut new_arg: Vec<String> = vec![];
+            new_arg.extend_from_slice(&nodes[lower_index..=upper_index]);
+            let mut new_arg = new_arg.join(" ");
+            new_arg.remove(0); new_arg.remove(new_arg.len() - 1);
+            args.push(new_arg);
         }
 
         let mut started: bool = false;
