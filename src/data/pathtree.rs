@@ -71,7 +71,13 @@ where
         let mut args: Vec<String> = vec![];
         let mut resulting_pathvec: Vec<String> = vec![];
 
+        let mut loop_validation = true;
         nodes.iter().enumerate().for_each(|(index, node)| {
+            if node.starts_with("\"") && node.len() == 1 {
+                loop_validation = false;
+                return;
+            }
+
             if node.starts_with("\"") {
                 slice_indices.0.push(index as u32);
             }
@@ -79,6 +85,9 @@ where
                 slice_indices.1.push(index as u32);
             }
         });
+        if !loop_validation {
+            return None;
+        }
 
         if slice_indices.0.is_empty() || slice_indices.1.is_empty() {
             return None;
