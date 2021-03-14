@@ -12,7 +12,7 @@ At the moment, Violet is just starting out and therefore no specific functionali
 
 ### IMPORTANT
 This project has just started, therefore nothing is ready yet. There is close to nothing here, and everything that's already here is subject to change.
-If you'd like to know how Violet's doing, please take a look at the (0.2.0 milestone)[https://github.com/Oleksii-Kshenskyi/violet/milestone/1], currently this is what's being worked on.
+If you'd like to know how Violet's doing, please take a look at the [0.2.0 milestone](https://github.com/Oleksii-Kshenskyi/violet/milestone/1), currently this is what's being worked on.
 
 ## License
 
