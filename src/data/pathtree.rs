@@ -65,21 +65,107 @@ where
         }
     }
 
-    pub fn get_command_and_args_from_path(&self, path: &str) -> Option<(String, Vec<String>)> {
+    fn attempt_multiword_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
+        let nodes = TreePath::create_path(path);
+        let mut slice_indices: (Vec<u32>, Vec<u32>) = (vec![], vec![]);
+        let mut args: Vec<String> = vec![];
+        let mut resulting_pathvec: Vec<String> = vec![];
+
+        let mut loop_validation = true;
+        nodes.iter().enumerate().for_each(|(index, node)| {
+            if node.starts_with('\"') && node.len() == 1 {
+                loop_validation = false;
+                return;
+            }
+
+            if node.starts_with('\"') {
+                slice_indices.0.push(index as u32);
+            }
+            if node.ends_with('\"') {
+                slice_indices.1.push(index as u32);
+            }
+        });
+        if !loop_validation {
+            return None;
+        }
+
+        if slice_indices.0.is_empty() || slice_indices.1.is_empty() {
+            return None;
+        }
+        if slice_indices.0.len() != slice_indices.1.len() {
+            return None;
+        }
+
+        let mut previous_end_index: u32 = 0;
+        let mut loop_validation = true;
+        slice_indices
+            .0
+            .iter()
+            .enumerate()
+            .for_each(|(index, start)| {
+                let end = slice_indices.1.get(index).unwrap();
+                if *start > *end || *start < previous_end_index {
+                    loop_validation = false;
+                }
+
+                previous_end_index = *end;
+            });
+        if !loop_validation {
+            return None;
+        }
+
+        for arg_number in 0..slice_indices.0.len() {
+            let lower_index = slice_indices.0[arg_number] as usize;
+            let upper_index = slice_indices.1[arg_number] as usize;
+
+            let mut new_arg: Vec<String> = vec![];
+            new_arg.extend_from_slice(&nodes[lower_index..=upper_index]);
+            let mut new_arg = new_arg.join(" ");
+            new_arg.remove(0);
+            new_arg.remove(new_arg.len() - 1);
+            args.push(new_arg);
+        }
+
+        let mut started: bool = false;
+        for node in &nodes {
+            if node.starts_with('\"') {
+                started = true;
+                resulting_pathvec.push("<ARG>".to_owned());
+            }
+
+            if !node.starts_with('\"') && !node.ends_with('\"') && !started {
+                resulting_pathvec.push(node.clone());
+            }
+
+            if node.ends_with('\"') {
+                started = false;
+            }
+        }
+
+        let resulting_path = resulting_pathvec.join(" ");
+        if self.does_node_exist(resulting_path.as_str()) {
+            Some((resulting_path, args))
+        } else {
+            None
+        }
+    }
+
+    fn attempt_single_word_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
         let pathvec = TreePath::create_path(path);
         let mut args: Vec<String> = vec![];
         let mut argumented: Vec<String> = vec![];
+
         for path in TreePath::get_path_hierarchy(&pathvec.join(" ")) {
             let previous_state = argumented.clone();
             argumented = TreePath::create_path(&TreePath::append_path_node(
                 &argumented,
                 TreePath::get_last_node(&path).unwrap().as_str(),
             ));
-            if PathTree::does_path_exist(self, &argumented.join(" ")) {
+            if self.does_path_exist(&argumented.join(" ")) {
                 continue;
             } else {
                 let argified_from_previous = TreePath::append_path_node(&previous_state, "<ARG>");
-                if PathTree::does_path_exist(self, &argified_from_previous) {
+                if self.does_path_exist(&argified_from_previous) {
                     argumented = TreePath::create_path(&argified_from_previous);
                     args.push(TreePath::get_last_node(&path).unwrap());
                 } else {
@@ -89,6 +175,14 @@ where
         }
 
         Some((argumented.join(" "), args))
+    }
+
+    pub fn get_command_and_args_from_path(&self, path: &str) -> Option<(String, Vec<String>)> {
+        if let Some((mw_command, mw_args)) = self.attempt_multiword_parsing(path) {
+            Some((mw_command, mw_args))
+        } else {
+            self.attempt_single_word_parsing(path)
+        }
     }
 }
 
