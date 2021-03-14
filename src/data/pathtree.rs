@@ -73,15 +73,15 @@ where
 
         let mut loop_validation = true;
         nodes.iter().enumerate().for_each(|(index, node)| {
-            if node.starts_with("\"") && node.len() == 1 {
+            if node.starts_with('\"') && node.len() == 1 {
                 loop_validation = false;
                 return;
             }
 
-            if node.starts_with("\"") {
+            if node.starts_with('\"') {
                 slice_indices.0.push(index as u32);
             }
-            if node.ends_with("\"") {
+            if node.ends_with('\"') {
                 slice_indices.1.push(index as u32);
             }
         });
@@ -98,14 +98,18 @@ where
 
         let mut previous_end_index: u32 = 0;
         let mut loop_validation = true;
-        slice_indices.0.iter().enumerate().for_each(|(index, start)| {
-            let end = slice_indices.1.get(index).unwrap();
-            if *start > *end || *start < previous_end_index {
-                loop_validation = false;
-            }
+        slice_indices
+            .0
+            .iter()
+            .enumerate()
+            .for_each(|(index, start)| {
+                let end = slice_indices.1.get(index).unwrap();
+                if *start > *end || *start < previous_end_index {
+                    loop_validation = false;
+                }
 
-            previous_end_index = *end;
-        });
+                previous_end_index = *end;
+            });
         if !loop_validation {
             return None;
         }
@@ -113,36 +117,35 @@ where
         for arg_number in 0..slice_indices.0.len() {
             let lower_index = slice_indices.0[arg_number] as usize;
             let upper_index = slice_indices.1[arg_number] as usize;
-            
+
             let mut new_arg: Vec<String> = vec![];
             new_arg.extend_from_slice(&nodes[lower_index..=upper_index]);
             let mut new_arg = new_arg.join(" ");
-            new_arg.remove(0); new_arg.remove(new_arg.len() - 1);
+            new_arg.remove(0);
+            new_arg.remove(new_arg.len() - 1);
             args.push(new_arg);
         }
 
         let mut started: bool = false;
-        for nodes_index in 0..nodes.len() {
-            if nodes[nodes_index].starts_with("\"") {
+        for node in &nodes {
+            if node.starts_with('\"') {
                 started = true;
                 resulting_pathvec.push("<ARG>".to_owned());
             }
 
-            if !nodes[nodes_index].starts_with("\"") && !nodes[nodes_index].ends_with("\"") && !started
-            {
-                resulting_pathvec.push(nodes[nodes_index].clone());
+            if !node.starts_with('\"') && !node.ends_with('\"') && !started {
+                resulting_pathvec.push(node.clone());
             }
 
-            if nodes[nodes_index].ends_with("\"") {
+            if node.ends_with('\"') {
                 started = false;
             }
         }
 
         let resulting_path = resulting_pathvec.join(" ");
-        if self.does_node_exist(resulting_path.clone().as_str()) {
+        if self.does_node_exist(resulting_path.as_str()) {
             Some((resulting_path, args))
-        }
-        else {
+        } else {
             None
         }
     }
@@ -177,8 +180,7 @@ where
     pub fn get_command_and_args_from_path(&self, path: &str) -> Option<(String, Vec<String>)> {
         if let Some((mw_command, mw_args)) = self.attempt_multiword_parsing(path) {
             Some((mw_command, mw_args))
-        }
-        else {
+        } else {
             self.attempt_single_word_parsing(path)
         }
     }

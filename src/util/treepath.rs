@@ -16,7 +16,7 @@ impl TreePath {
 
         path.iter().for_each(|path_node| {
             current_path.push_str(path_node.clone().as_str());
-            current_path.push_str(" ");
+            current_path.push(' ');
             hierarchy.push(current_path.trim().to_string());
         });
 
