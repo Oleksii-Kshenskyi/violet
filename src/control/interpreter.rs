@@ -34,11 +34,17 @@ impl Interpreter {
     }
 
     fn set_all_aliases(aliases: &mut PathTree<String>) {
-        aliases.set_by_path(String::from("please say <ARG> and <ARG>"), "utter <ARG> and <ARG> ye heretic");
+        aliases.set_by_path(
+            String::from("please say <ARG> and <ARG>"),
+            "utter <ARG> and <ARG> ye heretic",
+        );
         aliases.set_by_path(String::from("exit"), "get the heck outta here");
         aliases.set_by_path(String::from("what time is it"), "are we there yet");
         aliases.set_by_path(String::from("what is your name"), "what even are you");
-        aliases.set_by_path(String::from("please say <ARG> and <ARG>"), "blabber <ARG> and <ARG>");
+        aliases.set_by_path(
+            String::from("please say <ARG> and <ARG>"),
+            "blabber <ARG> and <ARG>",
+        );
     }
 
     pub fn run_repl(&mut self) {
@@ -56,17 +62,27 @@ impl Interpreter {
         loop {
             let user_input = input::get_user_input(config::get_violet_prompt());
             let command_to_invoke: String = match self
-                    .aliases_for_builtins
-                    .get_command_and_args_from_path(&user_input) {
+                .aliases_for_builtins
+                .get_command_and_args_from_path(&user_input)
+            {
                 None => user_input,
                 Some((path, args)) => {
                     if self.aliases_for_builtins.does_node_exist(&path) {
-                        TreePath::reconstruct_argumented_path(self.aliases_for_builtins.get_by_path(&path).unwrap().value.clone(), args).unwrap_or(String::from("ERROR: alias and builtin argument counts are different!"))
-                    }
-                    else {
+                        TreePath::reconstruct_argumented_path(
+                            self.aliases_for_builtins
+                                .get_by_path(&path)
+                                .unwrap()
+                                .value
+                                .clone(),
+                            args,
+                        )
+                        .unwrap_or_else(|| String::from(
+                            "ERROR: alias and builtin argument counts are different!",
+                        ))
+                    } else {
                         user_input
                     }
-                },
+                }
             };
 
             match self
@@ -83,8 +99,7 @@ impl Interpreter {
                     if self.builtin_commands.does_node_exist(&path) {
                         let cmd = self.builtin_commands.get_by_path(&path).unwrap();
                         cmd.value.execute(args);
-                    }
-                    else {
+                    } else {
                         println!(
                             "{}: command does not exist.",
                             TreePath::prettify(command_to_invoke.as_str())

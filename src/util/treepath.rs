@@ -41,12 +41,19 @@ impl TreePath {
         }
     }
 
-    pub fn reconstruct_argumented_path(path_to_reconstruct: String, args: Vec<String>) -> Option<String> {
+    pub fn reconstruct_argumented_path(
+        path_to_reconstruct: String,
+        args: Vec<String>,
+    ) -> Option<String> {
         let mut pathvec = TreePath::create_path(path_to_reconstruct.as_str());
-        if pathvec.iter().filter(|node| node.as_str() == "<ARG>").count() != args.len() {
+        if pathvec
+            .iter()
+            .filter(|node| node.as_str() == "<ARG>")
+            .count()
+            != args.len()
+        {
             None
-        }
-        else {
+        } else {
             let mut arg_index: usize = 0;
             for node in pathvec.iter_mut() {
                 if node.as_str() == "<ARG>" {
