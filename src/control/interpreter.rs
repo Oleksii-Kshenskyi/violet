@@ -59,7 +59,7 @@ impl Interpreter {
                     .aliases_for_builtins
                     .get_command_and_args_from_path(&user_input) {
                 None => user_input,
-                Some((path, args)) => TreePath::reconstruct_argumented_path(self.aliases_for_builtins.get_by_path(&path).unwrap().value.clone(), args).unwrap_or(String::from("ERROR")),
+                Some((path, args)) => TreePath::reconstruct_argumented_path(self.aliases_for_builtins.get_by_path(&path).unwrap().value.clone(), args).unwrap_or(String::from("ERROR: alias and builtin argument counts are different!")),
             };
             match self
                 .builtin_commands
