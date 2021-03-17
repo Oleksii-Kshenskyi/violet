@@ -121,8 +121,10 @@ where
             let mut new_arg: Vec<String> = vec![];
             new_arg.extend_from_slice(&nodes[lower_index..=upper_index]);
             let mut new_arg = new_arg.join(" ");
+
             new_arg.remove(0);
             new_arg.remove(new_arg.len() - 1);
+
             args.push(new_arg);
         }
 
@@ -172,6 +174,10 @@ where
                     return None;
                 }
             }
+        }
+
+        if args.iter().any(|arg| arg == "\"") {
+            return None;
         }
 
         Some((argumented.join(" "), args))

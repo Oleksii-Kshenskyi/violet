@@ -59,8 +59,16 @@ impl Interpreter {
                     .aliases_for_builtins
                     .get_command_and_args_from_path(&user_input) {
                 None => user_input,
-                Some((path, args)) => TreePath::reconstruct_argumented_path(self.aliases_for_builtins.get_by_path(&path).unwrap().value.clone(), args).unwrap_or(String::from("ERROR: alias and builtin argument counts are different!")),
+                Some((path, args)) => {
+                    if self.aliases_for_builtins.does_node_exist(&path) {
+                        TreePath::reconstruct_argumented_path(self.aliases_for_builtins.get_by_path(&path).unwrap().value.clone(), args).unwrap_or(String::from("ERROR: alias and builtin argument counts are different!"))
+                    }
+                    else {
+                        user_input
+                    }
+                },
             };
+
             match self
                 .builtin_commands
                 .get_command_and_args_from_path(&command_to_invoke)
@@ -72,8 +80,16 @@ impl Interpreter {
                     );
                 }
                 Some((path, args)) => {
-                    let cmd = self.builtin_commands.get_by_path(&path).unwrap();
-                    cmd.value.execute(args);
+                    if self.builtin_commands.does_node_exist(&path) {
+                        let cmd = self.builtin_commands.get_by_path(&path).unwrap();
+                        cmd.value.execute(args);
+                    }
+                    else {
+                        println!(
+                            "{}: command does not exist.",
+                            TreePath::prettify(command_to_invoke.as_str())
+                        );
+                    }
                 }
             }
         }

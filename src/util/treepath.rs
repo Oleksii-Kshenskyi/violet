@@ -50,14 +50,9 @@ impl TreePath {
             let mut arg_index: usize = 0;
             for node in pathvec.iter_mut() {
                 if node.as_str() == "<ARG>" {
-                    let new_arg: String;
-                    if TreePath::create_path(args[arg_index].as_str()).len() > 1 {
-                        new_arg = format!("\"{}\"", args[arg_index]).to_string();
-                    }
-                    else {
-                        new_arg = args[arg_index].clone();
-                    }
+                    let new_arg = format!("\"{}\"", args[arg_index]).to_string();
                     *node = new_arg;
+
                     arg_index += 1;
                 }
             }
