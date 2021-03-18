@@ -4,6 +4,8 @@ use crate::io::input;
 use crate::util::string::clone_uppercased;
 use crate::util::treepath::TreePath;
 
+use std::process::exit;
+
 use super::commands::*;
 
 pub struct Interpreter {
@@ -45,6 +47,11 @@ impl Interpreter {
             String::from("please say <ARG> and <ARG>"),
             "blabber <ARG> and <ARG>",
         );
+    }
+
+    fn exit(&mut self, exit_message: String) {
+        println!("{}", exit_message);
+        exit(0);
     }
 
     pub fn run_repl(&mut self) {
@@ -98,7 +105,13 @@ impl Interpreter {
                 Some((path, args)) => {
                     if self.builtin_commands.does_node_exist(&path) {
                         let cmd = self.builtin_commands.get_by_path(&path).unwrap();
-                        cmd.value.execute(args);
+                        match cmd.value.execute(args) {
+                            Ok(InterpretedCommand::DoNothing) => (),
+                            Ok(InterpretedCommand::Exit { exit_message}) => self.exit(exit_message),
+                            Ok(InterpretedCommand::AddAlias {alias: _, for_builtin: _}) => (),
+                            Ok(InterpretedCommand::RemoveAlias {alias: _}) => (),
+                            Err(InterpretationError::WrongArgumentCount { expected, actual}) => println!("ERROR: Wrong argument count; expected {}, found {}!", expected, actual),
+                        }
                     } else {
                         println!(
                             "{}: command does not exist.",
