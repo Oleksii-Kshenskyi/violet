@@ -9,12 +9,13 @@ use crate::config::get_exit_message;
 pub enum InterpretedCommand {
     DoNothing,
     Exit { exit_message: String },
-    AddAlias { alias: String, for_builtin: String},
-    RemoveAlias { alias: String},
+    AddAlias { alias: String, for_builtin: String },
+    RemoveAlias { alias: String },
 }
 
 pub enum InterpretationError {
     WrongArgumentCount {expected: usize, actual: usize},
+    ArgumentEmpty {argument_name: String},
 }
 
 #[enum_dispatch]
@@ -24,6 +25,8 @@ pub enum Command {
     CurrentTimeCommand,
     WhatsYourNameCommand,
     SayThisAndThatCommand,
+    AddAliasCommand,
+    RemoveAliasCommand,
 }
 
 #[enum_dispatch(Command)]
@@ -77,5 +80,36 @@ impl Action for SayThisAndThatCommand {
         );
 
         Ok(InterpretedCommand::DoNothing)
+    }
+}
+
+#[derive(Clone)]
+pub struct AddAliasCommand;
+impl Action for AddAliasCommand {
+    fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args.len() != 2 {
+            return Err(InterpretationError::WrongArgumentCount { expected: 2, actual: args.len() });
+        }
+
+        if args[0].is_empty() {
+            return Err(InterpretationError::ArgumentEmpty {argument_name: format!("{}", "alias")});
+        }
+        if args[1].is_empty() {
+            return Err(InterpretationError::ArgumentEmpty {argument_name: format!("{}", "builtin name")});
+        }
+
+        Ok(InterpretedCommand::AddAlias { alias: args[0].clone(), for_builtin: args[1].clone() })
+    }
+}
+
+#[derive(Clone)]
+pub struct RemoveAliasCommand;
+impl Action for RemoveAliasCommand {
+    fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args.len() != 1 {
+            return Err(InterpretationError::WrongArgumentCount {expected: 1, actual: args.len()});
+        }
+
+        Ok(InterpretedCommand::RemoveAlias {alias: args[0].clone()})
     }
 }

@@ -1,5 +1,5 @@
 use crate::config;
-use crate::data::pathtree::PathTree;
+use crate::data::pathtree::*;
 use crate::io::input;
 use crate::util::string::clone_uppercased;
 use crate::util::treepath::TreePath;
@@ -33,6 +33,8 @@ impl Interpreter {
             Command::from(SayThisAndThatCommand),
             "please say <ARG> and <ARG>",
         );
+        builtins.set_by_path(Command::from(AddAliasCommand), "add alias <ARG> for builtin <ARG>");
+        builtins.set_by_path(Command::from(RemoveAliasCommand), "remove alias <ARG>");
     }
 
     fn set_all_aliases(aliases: &mut PathTree<String>) {
@@ -52,6 +54,37 @@ impl Interpreter {
     fn exit(&mut self, exit_message: String) {
         println!("{}", exit_message);
         exit(0);
+    }
+
+    fn add_alias(&mut self, alias: String, for_builtin: String) {
+        if !self.builtin_commands.does_node_exist(&for_builtin) {
+            println!("ERROR: Can't set alias, builtin command [{}] does not exist!", for_builtin);
+            return;
+        }
+
+        if self.aliases_for_builtins.does_node_exist(&alias) {
+            println!("ERROR: Can't set alias, alias [{}] already exist. Remove the existing one first!", alias);
+            return;
+        }
+
+        self.aliases_for_builtins.set_by_path(for_builtin, alias.as_str());
+    }
+
+    fn remove_alias(&mut self, alias: String) {
+        if self.builtin_commands.does_node_exist(&alias) {
+            println!("ERROR: a builtin command like this already exists. Choose a different name for the alias.");
+            return;
+        }
+
+        if !self.aliases_for_builtins.does_node_exist(&alias) {
+            println!("ERROR: alias [{}] does not exist. Can't remove alias which doesn't exist.", &alias);
+            return;
+        }
+
+        match self.aliases_for_builtins.drop_by_path(&alias) {
+            Ok(PathTreeOk::DropOk) => (),
+            Err(PathTreeErr::DropNodeDoesNotExist) => println!("ERROR: PathTree: node [{}] does not exist!", &alias)
+        };
     }
 
     pub fn run_repl(&mut self) {
@@ -108,9 +141,10 @@ impl Interpreter {
                         match cmd.value.execute(args) {
                             Ok(InterpretedCommand::DoNothing) => (),
                             Ok(InterpretedCommand::Exit { exit_message}) => self.exit(exit_message),
-                            Ok(InterpretedCommand::AddAlias {alias: _, for_builtin: _}) => (),
-                            Ok(InterpretedCommand::RemoveAlias {alias: _}) => (),
+                            Ok(InterpretedCommand::AddAlias {alias, for_builtin}) => self.add_alias(alias, for_builtin),
+                            Ok(InterpretedCommand::RemoveAlias {alias}) => self.remove_alias(alias),
                             Err(InterpretationError::WrongArgumentCount { expected, actual}) => println!("ERROR: Wrong argument count; expected {}, found {}!", expected, actual),
+                            Err(InterpretationError::ArgumentEmpty {argument_name}) => println!("ERROR: Argument named [{}] is empty, which is not allowed in this context!", argument_name),
                         }
                     } else {
                         println!(
