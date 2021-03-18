@@ -24,5 +24,5 @@ pub fn get_violet_name() -> String {
 }
 
 pub fn get_exit_message() -> String {
-    format!("{}", VIOLET_EXIT_MESSAGE)
+    VIOLET_EXIT_MESSAGE.to_string()
 }

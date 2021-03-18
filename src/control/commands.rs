@@ -3,8 +3,8 @@ extern crate enum_dispatch;
 use chrono::Local;
 use enum_dispatch::*;
 
-use crate::config::get_violet_name;
 use crate::config::get_exit_message;
+use crate::config::get_violet_name;
 
 pub enum InterpretedCommand {
     DoNothing,
@@ -14,8 +14,8 @@ pub enum InterpretedCommand {
 }
 
 pub enum InterpretationError {
-    WrongArgumentCount {expected: usize, actual: usize},
-    ArgumentEmpty {argument_name: String},
+    WrongArgumentCount { expected: usize, actual: usize },
+    ArgumentEmpty { argument_name: String },
 }
 
 #[enum_dispatch]
@@ -38,7 +38,9 @@ pub trait Action {
 pub struct ExitCommand;
 impl Action for ExitCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
-        Ok(InterpretedCommand::Exit { exit_message: get_exit_message() })
+        Ok(InterpretedCommand::Exit {
+            exit_message: get_exit_message(),
+        })
     }
 }
 
@@ -71,7 +73,10 @@ impl Action for SayThisAndThatCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
         if args.len() != 2 {
             println!("Something went horribly wrong...");
-            return Err(InterpretationError::WrongArgumentCount { expected: 2, actual: args.len() });
+            return Err(InterpretationError::WrongArgumentCount {
+                expected: 2,
+                actual: args.len(),
+            });
         }
         println!(
             "Gotcha. Saying {} and {}!",
@@ -88,17 +93,27 @@ pub struct AddAliasCommand;
 impl Action for AddAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
         if args.len() != 2 {
-            return Err(InterpretationError::WrongArgumentCount { expected: 2, actual: args.len() });
+            return Err(InterpretationError::WrongArgumentCount {
+                expected: 2,
+                actual: args.len(),
+            });
         }
 
         if args[0].is_empty() {
-            return Err(InterpretationError::ArgumentEmpty {argument_name: format!("{}", "alias to add")});
+            return Err(InterpretationError::ArgumentEmpty {
+                argument_name: "alias to add".to_string(),
+            });
         }
         if args[1].is_empty() {
-            return Err(InterpretationError::ArgumentEmpty {argument_name: format!("{}", "builtin name")});
+            return Err(InterpretationError::ArgumentEmpty {
+                argument_name: "builtin name".to_string(),
+            });
         }
 
-        Ok(InterpretedCommand::AddAlias { alias: args[0].clone(), for_builtin: args[1].clone() })
+        Ok(InterpretedCommand::AddAlias {
+            alias: args[0].clone(),
+            for_builtin: args[1].clone(),
+        })
     }
 }
 
@@ -107,13 +122,20 @@ pub struct RemoveAliasCommand;
 impl Action for RemoveAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
         if args.len() != 1 {
-            return Err(InterpretationError::WrongArgumentCount {expected: 1, actual: args.len()});
+            return Err(InterpretationError::WrongArgumentCount {
+                expected: 1,
+                actual: args.len(),
+            });
         }
 
         if args[0].is_empty() {
-            return Err(InterpretationError::ArgumentEmpty { argument_name: format!("{}", "alias to remove")});
+            return Err(InterpretationError::ArgumentEmpty {
+                argument_name: "alias to remove".to_string(),
+            });
         }
 
-        Ok(InterpretedCommand::RemoveAlias {alias: args[0].clone()})
+        Ok(InterpretedCommand::RemoveAlias {
+            alias: args[0].clone(),
+        })
     }
 }

@@ -31,7 +31,10 @@ impl Interpreter {
             Command::from(SayThisAndThatCommand),
             "please say <ARG> and <ARG>",
         );
-        builtins.set_by_path(Command::from(AddAliasCommand), "add alias <ARG> for builtin <ARG>");
+        builtins.set_by_path(
+            Command::from(AddAliasCommand),
+            "add alias <ARG> for builtin <ARG>",
+        );
         builtins.set_by_path(Command::from(RemoveAliasCommand), "remove alias <ARG>");
     }
 
@@ -42,7 +45,10 @@ impl Interpreter {
 
     fn add_alias(&mut self, alias: String, for_builtin: String) {
         if !self.builtin_commands.does_node_exist(&for_builtin) {
-            println!("ERROR: Can't set alias, builtin command [{}] does not exist!", for_builtin);
+            println!(
+                "ERROR: Can't set alias, builtin command [{}] does not exist!",
+                for_builtin
+            );
             return;
         }
 
@@ -56,28 +62,46 @@ impl Interpreter {
             return;
         }
 
-        if TreePath::create_path(&alias).iter().filter(|node| node.as_str() == "<ARG>").count() != TreePath::create_path(&for_builtin).iter().filter(|node| node.as_str() == "<ARG>").count() {
-            println!("ERROR: alias and the builtin command have to have an equal number of arguments!");
+        if TreePath::create_path(&alias)
+            .iter()
+            .filter(|node| node.as_str() == "<ARG>")
+            .count()
+            != TreePath::create_path(&for_builtin)
+                .iter()
+                .filter(|node| node.as_str() == "<ARG>")
+                .count()
+        {
+            println!(
+                "ERROR: alias and the builtin command have to have an equal number of arguments!"
+            );
             return;
         }
 
-        self.aliases_for_builtins.set_by_path(for_builtin, alias.as_str());
+        self.aliases_for_builtins
+            .set_by_path(for_builtin, alias.as_str());
     }
 
     fn remove_alias(&mut self, alias: String) {
         if self.builtin_commands.does_node_exist(&alias) {
-            println!("ERROR: you can't remove a builtin command. Choose an alias to remove instead.");
+            println!(
+                "ERROR: you can't remove a builtin command. Choose an alias to remove instead."
+            );
             return;
         }
 
         if !self.aliases_for_builtins.does_node_exist(&alias) {
-            println!("ERROR: alias [{}] does not exist. Can't remove alias which doesn't exist.", &alias);
+            println!(
+                "ERROR: alias [{}] does not exist. Can't remove alias which doesn't exist.",
+                &alias
+            );
             return;
         }
 
         match self.aliases_for_builtins.drop_by_path(&alias) {
             Ok(PathTreeOk::DropOk) => (),
-            Err(PathTreeErr::DropNodeDoesNotExist) => println!("ERROR: PathTree: node [{}] does not exist!", &alias)
+            Err(PathTreeErr::DropNodeDoesNotExist) => {
+                println!("ERROR: PathTree: node [{}] does not exist!", &alias)
+            }
         };
     }
 
@@ -110,9 +134,9 @@ impl Interpreter {
                                 .clone(),
                             args,
                         )
-                        .unwrap_or_else(|| String::from(
-                            "ERROR: keyword <ARG> used in the wrong context, or",
-                        ))
+                        .unwrap_or_else(|| {
+                            String::from("ERROR: keyword <ARG> used in the wrong context, or")
+                        })
                     } else {
                         user_input
                     }

@@ -2,11 +2,11 @@ use crate::util::treepath::TreePath;
 use std::collections::HashMap;
 
 pub enum PathTreeOk {
-    DropOk
+    DropOk,
 }
 
 pub enum PathTreeErr {
-    DropNodeDoesNotExist
+    DropNodeDoesNotExist,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -65,8 +65,7 @@ where
         if self.does_node_exist(path) {
             self.tree.remove(path).unwrap();
             Ok(PathTreeOk::DropOk)
-        }
-        else {
+        } else {
             Err(PathTreeErr::DropNodeDoesNotExist)
         }
     }
