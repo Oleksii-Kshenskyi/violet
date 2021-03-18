@@ -16,12 +16,10 @@ pub struct Interpreter {
 impl Interpreter {
     pub fn new() -> Self {
         let mut builtins: PathTree<Command> = PathTree::new();
-        let mut aliases: PathTree<String> = PathTree::new();
         Interpreter::set_all_builtins(&mut builtins);
-        Interpreter::set_all_aliases(&mut aliases);
         Self {
             builtin_commands: builtins,
-            aliases_for_builtins: aliases,
+            aliases_for_builtins: PathTree::new(),
         }
     }
 
@@ -37,20 +35,6 @@ impl Interpreter {
         builtins.set_by_path(Command::from(RemoveAliasCommand), "remove alias <ARG>");
     }
 
-    fn set_all_aliases(aliases: &mut PathTree<String>) {
-        aliases.set_by_path(
-            String::from("please say <ARG> and <ARG>"),
-            "utter <ARG> and <ARG> ye heretic",
-        );
-        aliases.set_by_path(String::from("exit"), "get the heck outta here");
-        aliases.set_by_path(String::from("what time is it"), "are we there yet");
-        aliases.set_by_path(String::from("what is your name"), "what even are you");
-        aliases.set_by_path(
-            String::from("please say <ARG> and <ARG>"),
-            "blabber <ARG> and <ARG>",
-        );
-    }
-
     fn exit(&mut self, exit_message: String) {
         println!("{}", exit_message);
         exit(0);
@@ -62,8 +46,18 @@ impl Interpreter {
             return;
         }
 
+        if self.builtin_commands.does_node_exist(&alias) {
+            println!("ERROR: can't set this alias: [{}] is an existing builtin command name. Choose a different name for the alias.", alias);
+            return;
+        }
+
         if self.aliases_for_builtins.does_node_exist(&alias) {
-            println!("ERROR: Can't set alias, alias [{}] already exist. Remove the existing one first!", alias);
+            println!("ERROR: Can't set this alias, alias [{}] already exists. Remove the existing one first!", alias);
+            return;
+        }
+
+        if TreePath::create_path(&alias).iter().filter(|node| node.as_str() == "<ARG>").count() != TreePath::create_path(&for_builtin).iter().filter(|node| node.as_str() == "<ARG>").count() {
+            println!("ERROR: alias and the builtin command have to have an equal number of arguments!");
             return;
         }
 
@@ -72,7 +66,7 @@ impl Interpreter {
 
     fn remove_alias(&mut self, alias: String) {
         if self.builtin_commands.does_node_exist(&alias) {
-            println!("ERROR: a builtin command like this already exists. Choose a different name for the alias.");
+            println!("ERROR: you can't remove a builtin command. Choose an alias to remove instead.");
             return;
         }
 
@@ -117,7 +111,7 @@ impl Interpreter {
                             args,
                         )
                         .unwrap_or_else(|| String::from(
-                            "ERROR: alias and builtin argument counts are different!",
+                            "ERROR: keyword <ARG> used in the wrong context, or",
                         ))
                     } else {
                         user_input

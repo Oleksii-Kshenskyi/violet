@@ -92,7 +92,7 @@ impl Action for AddAliasCommand {
         }
 
         if args[0].is_empty() {
-            return Err(InterpretationError::ArgumentEmpty {argument_name: format!("{}", "alias")});
+            return Err(InterpretationError::ArgumentEmpty {argument_name: format!("{}", "alias to add")});
         }
         if args[1].is_empty() {
             return Err(InterpretationError::ArgumentEmpty {argument_name: format!("{}", "builtin name")});
@@ -108,6 +108,10 @@ impl Action for RemoveAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
         if args.len() != 1 {
             return Err(InterpretationError::WrongArgumentCount {expected: 1, actual: args.len()});
+        }
+
+        if args[0].is_empty() {
+            return Err(InterpretationError::ArgumentEmpty { argument_name: format!("{}", "alias to remove")});
         }
 
         Ok(InterpretedCommand::RemoveAlias {alias: args[0].clone()})
