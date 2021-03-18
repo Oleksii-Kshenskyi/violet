@@ -1,6 +1,14 @@
 use crate::util::treepath::TreePath;
 use std::collections::HashMap;
 
+pub enum PathTreeOk {
+    DropOk,
+}
+
+pub enum PathTreeErr {
+    DropNodeDoesNotExist,
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Node<T> {
     pub value: T,
@@ -50,6 +58,15 @@ where
             node_option.as_ref()
         } else {
             None
+        }
+    }
+
+    pub fn drop_by_path(&mut self, path: &str) -> Result<PathTreeOk, PathTreeErr> {
+        if self.does_node_exist(path) {
+            self.tree.remove(path).unwrap();
+            Ok(PathTreeOk::DropOk)
+        } else {
+            Err(PathTreeErr::DropNodeDoesNotExist)
         }
     }
 
