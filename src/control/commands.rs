@@ -6,7 +6,7 @@ use enum_dispatch::*;
 use crate::config::get_exit_message;
 use crate::config::get_violet_name;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub enum InterpretedCommand {
     DoNothing,

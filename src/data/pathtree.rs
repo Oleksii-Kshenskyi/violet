@@ -1,7 +1,7 @@
 use crate::util::treepath::TreePath;
 use std::collections::HashMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub enum PathTreeOk {
     DropOk,
@@ -23,7 +23,7 @@ pub struct PathTree<T> {
 
 impl<'a, T> PathTree<T>
 where
-    T: Clone
+    T: Clone,
 {
     pub fn new() -> Self {
         Self {

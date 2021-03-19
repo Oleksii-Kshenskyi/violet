@@ -4,12 +4,10 @@ use crate::io::input;
 use crate::util::string::clone_uppercased;
 use crate::util::treepath::TreePath;
 
-use std::process::exit;
 use std::path::Path;
+use std::process::exit;
 
 use super::commands::*;
-
-use serde_json;
 
 pub struct Interpreter {
     builtin_commands: PathTree<Command>,
@@ -23,20 +21,21 @@ impl Interpreter {
         let config_name = config::get_config_file_name();
         let aliases: PathTree<String> = if Path::new(&config_name).is_file() {
             match std::fs::read_to_string(&config_name) {
-                Ok(file_contents) => {
-                    match serde_json::from_str(&file_contents) {
-                        Ok(the_aliases) => {
-                            println!("INFO: loaded the saved aliases from config file successfully!");
-                            the_aliases
-                        }
-                        Err(the_err) => {
-                            println!("ERROR: the config file is corrupted, couldn't get aliases from it: {:?}", the_err);
-                            PathTree::new()
-                        }
+                Ok(file_contents) => match serde_json::from_str(&file_contents) {
+                    Ok(the_aliases) => {
+                        println!("INFO: loaded the saved aliases from config file successfully!");
+                        the_aliases
+                    }
+                    Err(the_err) => {
+                        println!("ERROR: the config file is corrupted, couldn't get aliases from it: {:?}", the_err);
+                        PathTree::new()
                     }
                 },
                 Err(the_err) => {
-                    println!("ERROR: couldn't open config file to load the saved aliases from it: {:?}", the_err);
+                    println!(
+                        "ERROR: couldn't open config file to load the saved aliases from it: {:?}",
+                        the_err
+                    );
                     PathTree::new()
                 }
             }
@@ -44,7 +43,7 @@ impl Interpreter {
             PathTree::new()
         };
         let alias_len = aliases.tree.len();
-        
+
         Interpreter::set_all_builtins(&mut builtins);
         Self {
             builtin_commands: builtins,
@@ -69,20 +68,27 @@ impl Interpreter {
     }
 
     fn exit(&mut self, exit_message: String) {
-        if self.aliases_for_builtins.tree.len() > 0 {
+        if !self.aliases_for_builtins.tree.is_empty() {
             match std::fs::File::create(config::get_config_file_name()) {
-                Ok(file) => {
-                    match serde_json::to_writer(file, &self.aliases_for_builtins) {
-                        Ok(()) => println!("INFO: saved aliases successfully before exiting ^_^"),
-                        Err(the_err) => println!("ERROR: opened file, but weren't able to save aliases to it: {:?}", the_err),
-                    }
-                }
-                Err(the_err) => println!("ERROR: coudln't create a file to save aliases: {:?}", the_err),
+                Ok(file) => match serde_json::to_writer(file, &self.aliases_for_builtins) {
+                    Ok(()) => println!("INFO: saved aliases successfully before exiting ^_^"),
+                    Err(the_err) => println!(
+                        "ERROR: opened file, but weren't able to save aliases to it: {:?}",
+                        the_err
+                    ),
+                },
+                Err(the_err) => println!(
+                    "ERROR: coudln't create a file to save aliases: {:?}",
+                    the_err
+                ),
             }
         }
 
         let config_name = config::get_config_file_name();
-        if self.aliases_for_builtins.tree.is_empty() && self.aliases_len_on_boot != 0 && std::path::Path::new(&config_name).is_file() {
+        if self.aliases_for_builtins.tree.is_empty()
+            && self.aliases_len_on_boot != 0
+            && std::path::Path::new(&config_name).is_file()
+        {
             println!("INFO: all aliases have been removed, removing the config file...");
             std::fs::remove_file(&config_name).unwrap();
         }
