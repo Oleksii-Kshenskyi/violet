@@ -1,6 +1,8 @@
 use crate::util::treepath::TreePath;
 use std::collections::HashMap;
 
+use serde::{Serialize, Deserialize};
+
 pub enum PathTreeOk {
     DropOk,
 }
@@ -9,18 +11,19 @@ pub enum PathTreeErr {
     DropNodeDoesNotExist,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Node<T> {
     pub value: T,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct PathTree<T> {
     pub tree: HashMap<String, Option<Node<T>>>,
 }
 
-impl<T> PathTree<T>
+impl<'a, T> PathTree<T>
 where
-    T: Clone,
+    T: Clone
 {
     pub fn new() -> Self {
         Self {

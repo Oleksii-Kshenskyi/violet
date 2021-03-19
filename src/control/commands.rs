@@ -6,6 +6,8 @@ use enum_dispatch::*;
 use crate::config::get_exit_message;
 use crate::config::get_violet_name;
 
+use serde::{Serialize, Deserialize};
+
 pub enum InterpretedCommand {
     DoNothing,
     Exit { exit_message: String },
@@ -19,7 +21,7 @@ pub enum InterpretationError {
 }
 
 #[enum_dispatch]
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum Command {
     ExitCommand,
     CurrentTimeCommand,
@@ -34,7 +36,7 @@ pub trait Action {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError>;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ExitCommand;
 impl Action for ExitCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -44,7 +46,7 @@ impl Action for ExitCommand {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct CurrentTimeCommand;
 impl Action for CurrentTimeCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -57,7 +59,7 @@ impl Action for CurrentTimeCommand {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct WhatsYourNameCommand;
 impl Action for WhatsYourNameCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -67,7 +69,7 @@ impl Action for WhatsYourNameCommand {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SayThisAndThatCommand;
 impl Action for SayThisAndThatCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -88,7 +90,7 @@ impl Action for SayThisAndThatCommand {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct AddAliasCommand;
 impl Action for AddAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -117,7 +119,7 @@ impl Action for AddAliasCommand {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct RemoveAliasCommand;
 impl Action for RemoveAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
