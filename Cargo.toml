@@ -13,3 +13,5 @@
 [dependencies]
     enum_dispatch = "0.3.4"
     chrono = "0.4.19"
+    serde = { version = "1.0.124", features = [ "derive", "std" ] }
+    serde_json = "1.0.64"
