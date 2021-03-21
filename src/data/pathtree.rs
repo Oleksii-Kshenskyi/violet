@@ -21,7 +21,7 @@ pub struct PathTree<T> {
     pub tree: HashMap<String, Option<Node<T>>>,
 }
 
-impl<'a, T> PathTree<T>
+impl<T> PathTree<T>
 where
     T: Clone,
 {
