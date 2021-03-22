@@ -100,4 +100,10 @@ impl TreePath {
         }
         shortcut
     }
+
+    pub fn is_path_a_shortcut(path: &str) -> bool {
+        let first_node = TreePath::create_path(path)[0].to_owned();
+
+        first_node.starts_with('[') && first_node.ends_with(']')
+    }
 }

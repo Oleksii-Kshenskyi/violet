@@ -4,15 +4,19 @@ use chrono::Local;
 use enum_dispatch::*;
 
 use crate::config::get_exit_message;
+use crate::config::get_help_message;
 use crate::config::get_violet_name;
+use crate::config::Help;
 
 use serde::{Deserialize, Serialize};
 
 pub enum InterpretedCommand {
     DoNothing,
+    ListAvailableCommands,
     Exit { exit_message: String },
     AddAlias { alias: String, for_builtin: String },
     RemoveAlias { alias: String },
+    ExplainCommand { command: String },
 }
 
 pub enum InterpretationError {
@@ -29,11 +33,15 @@ pub enum Command {
     SayThisAndThatCommand,
     AddAliasCommand,
     RemoveAliasCommand,
+    HelpCommand,
+    ListAvailableCommandsCommand,
+    ExplainCommandCommand,
 }
 
 #[enum_dispatch(Command)]
 pub trait Action {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError>;
+    fn help(&self) -> &str;
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -43,6 +51,10 @@ impl Action for ExitCommand {
         Ok(InterpretedCommand::Exit {
             exit_message: get_exit_message(),
         })
+    }
+
+    fn help(&self) -> &str {
+        Help::exit()
     }
 }
 
@@ -57,6 +69,10 @@ impl Action for CurrentTimeCommand {
 
         Ok(InterpretedCommand::DoNothing)
     }
+
+    fn help(&self) -> &str {
+        Help::what_time_is_it()
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -66,6 +82,10 @@ impl Action for WhatsYourNameCommand {
         println!("My name is {}! Nice to meet you ^_^", &get_violet_name());
 
         Ok(InterpretedCommand::DoNothing)
+    }
+
+    fn help(&self) -> &str {
+        Help::what_is_your_name()
     }
 }
 
@@ -87,6 +107,10 @@ impl Action for SayThisAndThatCommand {
         );
 
         Ok(InterpretedCommand::DoNothing)
+    }
+
+    fn help(&self) -> &str {
+        Help::please_say_arg_and_arg()
     }
 }
 
@@ -117,6 +141,10 @@ impl Action for AddAliasCommand {
             for_builtin: args[1].clone(),
         })
     }
+
+    fn help(&self) -> &str {
+        Help::add_alias_arg_for_builtin_arg()
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -139,5 +167,55 @@ impl Action for RemoveAliasCommand {
         Ok(InterpretedCommand::RemoveAlias {
             alias: args[0].clone(),
         })
+    }
+
+    fn help(&self) -> &str {
+        Help::remove_alias_arg()
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct HelpCommand;
+impl Action for HelpCommand {
+    fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        println!("{}", &get_help_message());
+
+        Ok(InterpretedCommand::DoNothing)
+    }
+
+    fn help(&self) -> &str {
+        Help::help()
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ListAvailableCommandsCommand;
+impl Action for ListAvailableCommandsCommand {
+    fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        Ok(InterpretedCommand::ListAvailableCommands)
+    }
+
+    fn help(&self) -> &str {
+        Help::list_available_commands()
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ExplainCommandCommand;
+impl Action for ExplainCommandCommand {
+    fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args[0].is_empty() {
+            return Err(InterpretationError::ArgumentEmpty {
+                argument_name: "command to explain".to_string(),
+            });
+        }
+
+        Ok(InterpretedCommand::ExplainCommand {
+            command: args[0].clone(),
+        })
+    }
+
+    fn help(&self) -> &str {
+        Help::explain_command_arg()
     }
 }
