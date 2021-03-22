@@ -67,4 +67,37 @@ impl TreePath {
             Some(pathvec.join(" "))
         }
     }
+
+    pub fn count_x_nodes_for_path(path: &str, x_node: &str) -> usize {
+        TreePath::create_path(path)
+            .iter()
+            .filter(|node| node.as_str() == x_node)
+            .count()
+    }
+
+    pub fn create_shortcut(path: &str) -> String {
+        if path.is_empty() {
+            panic!("PANIC: TreePath::create_shortcut(): couldn't create the shortcut, source path is empty!");
+        }
+
+        let pathvec = TreePath::create_path(path);
+        let mut shortcut: String = String::from('[');
+        let mut arg_count: usize = 0;
+
+        for node in pathvec {
+            if node.as_str() == "<ARG>" {
+                shortcut.push('a');
+                arg_count += 1;
+            } else {
+                shortcut.push(node.chars().next().unwrap());
+            }
+        }
+
+        shortcut.push(']');
+        if arg_count != 0 {
+            shortcut.push(' ');
+            shortcut.push_str(vec!["<ARG>"; arg_count].join(" ").as_str());
+        }
+        shortcut
+    }
 }
