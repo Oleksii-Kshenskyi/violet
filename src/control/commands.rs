@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 pub enum InterpretedCommand {
     DoNothing,
+    ListAvailableCommands,
     Exit { exit_message: String },
     AddAlias { alias: String, for_builtin: String },
     RemoveAlias { alias: String },
@@ -31,6 +32,7 @@ pub enum Command {
     AddAliasCommand,
     RemoveAliasCommand,
     HelpCommand,
+    ListAvailableCommandsCommand,
 }
 
 #[enum_dispatch(Command)]
@@ -151,5 +153,13 @@ impl Action for HelpCommand {
         println!("{}", &get_help_message());
 
         Ok(InterpretedCommand::DoNothing)
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ListAvailableCommandsCommand; 
+impl Action for ListAvailableCommandsCommand {
+    fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        Ok(InterpretedCommand::ListAvailableCommands)
     }
 }

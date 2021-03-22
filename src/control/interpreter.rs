@@ -67,6 +67,7 @@ impl Interpreter {
         );
         builtins.set_by_path_with_shortcut(Command::from(RemoveAliasCommand), "remove alias <ARG>");
         builtins.set_by_path_with_shortcut(Command::from(HelpCommand), "help");
+        builtins.set_by_path_with_shortcut(Command::from(ListAvailableCommandsCommand), "list available commands");
     }
 
     fn exit(&mut self, exit_message: String) {
@@ -97,6 +98,20 @@ impl Interpreter {
 
         println!("{}", exit_message);
         exit(0);
+    }
+
+    fn list_available_commands(&mut self) {
+        if !self.builtin_commands.tree.is_empty() {
+            println!("Available commands:\n");
+            for key in self.builtin_commands.tree.keys() {
+                if self.builtin_commands.does_node_exist(key) && !TreePath::is_path_a_shortcut(&key) {
+                    println!("- {};", key);
+                }
+            }
+            println!("\nTo explain an individual command, please run:\n<<VIO>> explain command <ARG>\n, where <ARG> is the command you want explained.\nIf the command consists of several words/nodes, take care to enclose it in quotation marks \" when passing it as an argument to explain command.");
+        } else {
+            println!("No commands available!");
+        }
     }
 
     fn add_alias(&mut self, alias: String, for_builtin: String) {
@@ -209,6 +224,7 @@ impl Interpreter {
                         let cmd = self.builtin_commands.get_by_path(&path).unwrap();
                         match cmd.value.execute(args) {
                             Ok(InterpretedCommand::DoNothing) => (),
+                            Ok(InterpretedCommand::ListAvailableCommands) => self.list_available_commands(),
                             Ok(InterpretedCommand::Exit { exit_message}) => self.exit(exit_message),
                             Ok(InterpretedCommand::AddAlias {alias, for_builtin}) => self.add_alias(alias, for_builtin),
                             Ok(InterpretedCommand::RemoveAlias {alias}) => self.remove_alias(alias),

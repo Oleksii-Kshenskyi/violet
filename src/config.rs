@@ -21,7 +21,7 @@ You can exit Violet with
 If you want to see the list of available commands, the command for that is:
 <<VIO>> list available commands
 \tor
-<<VIO>> [loc]
+<<VIO>> [lac]
 ---
 If you want to see the explanation for an individual command:
 <<VIO>> explain command <ARG>
