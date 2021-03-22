@@ -53,18 +53,18 @@ impl Interpreter {
     }
 
     fn set_all_builtins(builtins: &mut PathTree<Command>) {
-        builtins.set_by_path(Command::from(ExitCommand), "exit");
-        builtins.set_by_path(Command::from(CurrentTimeCommand), "what time is it");
-        builtins.set_by_path(Command::from(WhatsYourNameCommand), "what is your name");
-        builtins.set_by_path(
+        builtins.set_by_path_with_shortcut(Command::from(ExitCommand), "exit");
+        builtins.set_by_path_with_shortcut(Command::from(CurrentTimeCommand), "what time is it");
+        builtins.set_by_path_with_shortcut(Command::from(WhatsYourNameCommand), "what is your name");
+        builtins.set_by_path_with_shortcut(
             Command::from(SayThisAndThatCommand),
             "please say <ARG> and <ARG>",
         );
-        builtins.set_by_path(
+        builtins.set_by_path_with_shortcut(
             Command::from(AddAliasCommand),
             "add alias <ARG> for builtin <ARG>",
         );
-        builtins.set_by_path(Command::from(RemoveAliasCommand), "remove alias <ARG>");
+        builtins.set_by_path_with_shortcut(Command::from(RemoveAliasCommand), "remove alias <ARG>");
     }
 
     fn exit(&mut self, exit_message: String) {
@@ -116,14 +116,8 @@ impl Interpreter {
             return;
         }
 
-        if TreePath::create_path(&alias)
-            .iter()
-            .filter(|node| node.as_str() == "<ARG>")
-            .count()
-            != TreePath::create_path(&for_builtin)
-                .iter()
-                .filter(|node| node.as_str() == "<ARG>")
-                .count()
+        if TreePath::count_x_nodes_for_path(&alias, "<ARG>")
+            != TreePath::count_x_nodes_for_path(&for_builtin, "<ARG>")
         {
             println!(
                 "ERROR: alias and the builtin command have to have an equal number of arguments!"

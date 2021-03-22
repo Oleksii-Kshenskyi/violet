@@ -55,6 +55,12 @@ where
             })
     }
 
+    pub fn set_by_path_with_shortcut(&mut self, value: T, path: &str) {
+        self.set_by_path(value.clone(), path);
+
+        self.set_by_path(value, TreePath::create_shortcut(path).as_str());
+    }
+
     pub fn get_by_path(&self, path: &str) -> Option<&Node<T>> {
         let path = TreePath::create_path(&path);
         if let Some(node_option) = self.tree.get(&path.join(" ")) {
