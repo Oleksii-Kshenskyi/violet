@@ -68,6 +68,7 @@ impl Interpreter {
         builtins.set_by_path_with_shortcut(Command::from(RemoveAliasCommand), "remove alias <ARG>");
         builtins.set_by_path_with_shortcut(Command::from(HelpCommand), "help");
         builtins.set_by_path_with_shortcut(Command::from(ListAvailableCommandsCommand), "list available commands");
+        builtins.set_by_path_with_shortcut(Command::from(ExplainCommandCommand), "explain command <ARG>");
     }
 
     fn exit(&mut self, exit_message: String) {
@@ -112,6 +113,15 @@ impl Interpreter {
         } else {
             println!("No commands available!");
         }
+    }
+
+    fn explain_command(&mut self, command: &str) {
+        if !self.builtin_commands.does_node_exist(command) {
+            println!("ERROR: can't explain command \"{}\" which doesn't exist.", command);
+            return;
+        }
+
+        println!("{}", self.builtin_commands.get_by_path(command).unwrap().value.help());
     }
 
     fn add_alias(&mut self, alias: String, for_builtin: String) {
@@ -228,6 +238,8 @@ impl Interpreter {
                             Ok(InterpretedCommand::Exit { exit_message}) => self.exit(exit_message),
                             Ok(InterpretedCommand::AddAlias {alias, for_builtin}) => self.add_alias(alias, for_builtin),
                             Ok(InterpretedCommand::RemoveAlias {alias}) => self.remove_alias(alias),
+                            Ok(InterpretedCommand::ExplainCommand {command}) => self.explain_command(&command),
+
                             Err(InterpretationError::WrongArgumentCount { expected, actual}) => println!("ERROR: Wrong argument count; expected {}, found {}!", expected, actual),
                             Err(InterpretationError::ArgumentEmpty {argument_name}) => println!("ERROR: Argument named [{}] is empty, which is not allowed in this context!", argument_name),
                         }
