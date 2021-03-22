@@ -67,8 +67,14 @@ impl Interpreter {
         );
         builtins.set_by_path_with_shortcut(Command::from(RemoveAliasCommand), "remove alias <ARG>");
         builtins.set_by_path_with_shortcut(Command::from(HelpCommand), "help");
-        builtins.set_by_path_with_shortcut(Command::from(ListAvailableCommandsCommand), "list available commands");
-        builtins.set_by_path_with_shortcut(Command::from(ExplainCommandCommand), "explain command <ARG>");
+        builtins.set_by_path_with_shortcut(
+            Command::from(ListAvailableCommandsCommand),
+            "list available commands",
+        );
+        builtins.set_by_path_with_shortcut(
+            Command::from(ExplainCommandCommand),
+            "explain command <ARG>",
+        );
     }
 
     fn exit(&mut self, exit_message: String) {
@@ -105,7 +111,8 @@ impl Interpreter {
         if !self.builtin_commands.tree.is_empty() {
             println!("Available commands:\n");
             for key in self.builtin_commands.tree.keys() {
-                if self.builtin_commands.does_node_exist(key) && !TreePath::is_path_a_shortcut(&key) {
+                if self.builtin_commands.does_node_exist(key) && !TreePath::is_path_a_shortcut(&key)
+                {
                     println!("- {};", key);
                 }
             }
@@ -117,11 +124,21 @@ impl Interpreter {
 
     fn explain_command(&mut self, command: &str) {
         if !self.builtin_commands.does_node_exist(command) {
-            println!("ERROR: can't explain command \"{}\" which doesn't exist.", command);
+            println!(
+                "ERROR: can't explain command \"{}\" which doesn't exist.",
+                command
+            );
             return;
         }
 
-        println!("{}", self.builtin_commands.get_by_path(command).unwrap().value.help());
+        println!(
+            "{}",
+            self.builtin_commands
+                .get_by_path(command)
+                .unwrap()
+                .value
+                .help()
+        );
     }
 
     fn add_alias(&mut self, alias: String, for_builtin: String) {
@@ -191,7 +208,9 @@ impl Interpreter {
             config::get_violet_version()
         );
         println!("Created by {}.", config::get_violet_author());
-        println!("To get help with the basics of Violet, type: \nhelp\n\tor\n[h]\n and press <ENTER>.");
+        println!(
+            "To get help with the basics of Violet, type: \nhelp\n\tor\n[h]\n and press <ENTER>."
+        );
 
         loop {
             let user_input = input::get_user_input(config::get_violet_prompt());

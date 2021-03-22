@@ -4,8 +4,8 @@ use chrono::Local;
 use enum_dispatch::*;
 
 use crate::config::get_exit_message;
-use crate::config::get_violet_name;
 use crate::config::get_help_message;
+use crate::config::get_violet_name;
 use crate::config::Help;
 
 use serde::{Deserialize, Serialize};
@@ -189,7 +189,7 @@ impl Action for HelpCommand {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct ListAvailableCommandsCommand; 
+pub struct ListAvailableCommandsCommand;
 impl Action for ListAvailableCommandsCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
         Ok(InterpretedCommand::ListAvailableCommands)
@@ -205,10 +205,14 @@ pub struct ExplainCommandCommand;
 impl Action for ExplainCommandCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
         if args[0].is_empty() {
-            return Err(InterpretationError::ArgumentEmpty { argument_name: "command to explain".to_string()});
+            return Err(InterpretationError::ArgumentEmpty {
+                argument_name: "command to explain".to_string(),
+            });
         }
 
-        Ok(InterpretedCommand::ExplainCommand { command: args[0].clone() })
+        Ok(InterpretedCommand::ExplainCommand {
+            command: args[0].clone(),
+        })
     }
 
     fn help(&self) -> &str {
