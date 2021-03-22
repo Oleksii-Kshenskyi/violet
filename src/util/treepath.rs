@@ -89,9 +89,8 @@ impl TreePath {
                 shortcut.push('a');
                 arg_count += 1;
             } else {
-                shortcut.push(node.chars().nth(0).unwrap());
+                shortcut.push(node.chars().next().unwrap());
             }
-
         }
 
         shortcut.push(']');

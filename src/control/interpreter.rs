@@ -55,7 +55,8 @@ impl Interpreter {
     fn set_all_builtins(builtins: &mut PathTree<Command>) {
         builtins.set_by_path_with_shortcut(Command::from(ExitCommand), "exit");
         builtins.set_by_path_with_shortcut(Command::from(CurrentTimeCommand), "what time is it");
-        builtins.set_by_path_with_shortcut(Command::from(WhatsYourNameCommand), "what is your name");
+        builtins
+            .set_by_path_with_shortcut(Command::from(WhatsYourNameCommand), "what is your name");
         builtins.set_by_path_with_shortcut(
             Command::from(SayThisAndThatCommand),
             "please say <ARG> and <ARG>",
