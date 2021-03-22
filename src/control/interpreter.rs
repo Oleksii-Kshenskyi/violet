@@ -66,6 +66,7 @@ impl Interpreter {
             "add alias <ARG> for builtin <ARG>",
         );
         builtins.set_by_path_with_shortcut(Command::from(RemoveAliasCommand), "remove alias <ARG>");
+        builtins.set_by_path_with_shortcut(Command::from(HelpCommand), "help");
     }
 
     fn exit(&mut self, exit_message: String) {
@@ -165,6 +166,7 @@ impl Interpreter {
             config::get_violet_version()
         );
         println!("Created by {}.", config::get_violet_author());
+        println!("To get help with the basics of Violet, type: \nhelp\n\tor\n[h]\n and press <ENTER>.");
 
         loop {
             let user_input = input::get_user_input(config::get_violet_prompt());

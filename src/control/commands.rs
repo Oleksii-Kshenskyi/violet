@@ -5,6 +5,7 @@ use enum_dispatch::*;
 
 use crate::config::get_exit_message;
 use crate::config::get_violet_name;
+use crate::config::get_help_message;
 
 use serde::{Deserialize, Serialize};
 
@@ -29,6 +30,7 @@ pub enum Command {
     SayThisAndThatCommand,
     AddAliasCommand,
     RemoveAliasCommand,
+    HelpCommand,
 }
 
 #[enum_dispatch(Command)]
@@ -139,5 +141,15 @@ impl Action for RemoveAliasCommand {
         Ok(InterpretedCommand::RemoveAlias {
             alias: args[0].clone(),
         })
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct HelpCommand;
+impl Action for HelpCommand {
+    fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        println!("{}", &get_help_message());
+
+        Ok(InterpretedCommand::DoNothing)
     }
 }
