@@ -75,7 +75,7 @@ impl TreePath {
             .count()
     }
 
-    pub fn create_shortcut(path: &str) -> String {
+    pub fn create_shortcut(path: &str, serial: usize) -> String {
         if path.is_empty() {
             panic!("PANIC: TreePath::create_shortcut(): couldn't create the shortcut, source path is empty!");
         }
@@ -83,6 +83,13 @@ impl TreePath {
         let pathvec = TreePath::create_path(path);
         let mut shortcut: String = String::from('[');
         let mut arg_count: usize = 0;
+
+        let serial_str = serial.to_string();
+        let alias_serial = if serial_str.as_str() == "1" {
+            ""
+        } else {
+            serial_str.as_str()
+        };
 
         for node in pathvec {
             if node.as_str() == "<ARG>" {
@@ -93,6 +100,9 @@ impl TreePath {
             }
         }
 
+        if !alias_serial.is_empty() {
+            shortcut.push_str(alias_serial);
+        }
         shortcut.push(']');
         if arg_count != 0 {
             shortcut.push(' ');

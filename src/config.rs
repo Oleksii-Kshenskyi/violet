@@ -72,6 +72,36 @@ Shortcut for
 <<VIO>> remove alias \"alias for exit\"
 is
 <<VIO>> [raa] \"alias for exit\"
+---
+If the same shortcut is created several times due to name collision, the second and subsequent shortcuts are appended with a sequential number.
+Example:
+Assume we have three [eaa] commands, and they were added in this order:
+1. enable alias <ARG>
+2. exists argument <ARG>
+3. eat ate <ARG>
+Three aliases would be created for that:
+- [eaa] <ARG>, which calls enable alias <ARG>;
+- [eaa2] <ARG>, which calls exists argument <ARG>;
+- [eaa3] <ARG>, which calls eat <ARG> <ARG>.
+---
+NOTE: aliases with different arity (number of argument) are considered different commands. Therefore, if we have:
+1. enable alias <ARG> // arity 1
+2. eat <ARG> <ARG> // arity 2
+The aliases created are going to be:
+- [eaa] <ARG> // for enable alias <ARG>
+- [eaa] <ARG> <ARG> // for eat <ARG> <ARG>
+NOTE: there are no sequential numbers like [eaa2] here. The reason is the different arities of the two commands.
+---
+You can see what a certain shortcut expands to with \"explain command <ARG>\":
+Example: if you have two commands with the [eca] shortcut name, \"explain command <ARG>\" and \"eat candy <ARG>\"
+<<VIO>> explain command \"[eca] <ARG>\"
+  [[help for explain command <ARG>]]
+<<VIO>> explain command \"[eca2] <ARG>\"
+  [[help for eat candy <ARG>]]
+---
+You can of course use shortcuts while meta-asking for explanation about explanation:
+<<VIO>> [eca] \"[eca] <ARG>\"
+  [[help for explain command <ARG>]]
 ";
 
 pub struct Help;
@@ -161,7 +191,7 @@ impl Help {
 
     pub fn help() -> &'static str {
         "<<VIO>> help
-        \tA concise yet information-dense intro to the basics of Violet.
+          A concise yet information-dense intro to the basics of Violet.
         "
     }
 }

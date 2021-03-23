@@ -80,7 +80,7 @@ impl Interpreter {
     fn exit(&mut self, exit_message: String) {
         if !self.aliases_for_builtins.tree.is_empty() {
             match std::fs::File::create(config::get_config_file_name()) {
-                Ok(file) => match serde_json::to_writer(file, &self.aliases_for_builtins) {
+                Ok(file) => match serde_json::to_writer_pretty(file, &self.aliases_for_builtins) {
                     Ok(()) => println!("INFO: saved aliases successfully before exiting ^_^"),
                     Err(the_err) => println!(
                         "ERROR: opened file, but weren't able to save aliases to it: {:?}",
