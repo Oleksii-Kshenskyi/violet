@@ -58,7 +58,21 @@ where
     pub fn set_by_path_with_shortcut(&mut self, value: T, path: &str) {
         self.set_by_path(value.clone(), path);
 
-        self.set_by_path(value, TreePath::create_shortcut(path).as_str());
+        let mut shortcut_name = TreePath::create_shortcut(path, 1);
+        if !self.does_node_exist(&shortcut_name) {
+            self.set_by_path(value.clone(), &shortcut_name);
+        } else {
+            let mut alias_serial_number: usize = 2;
+            shortcut_name = loop {
+                let current_alias = TreePath::create_shortcut(path, alias_serial_number);
+                if !self.does_node_exist(&current_alias) {
+                    break current_alias;
+                } else {
+                    alias_serial_number += 1;
+                }
+            }
+        }
+        self.set_by_path(value, &shortcut_name);
     }
 
     pub fn get_by_path(&self, path: &str) -> Option<&Node<T>> {
