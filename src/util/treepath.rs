@@ -85,7 +85,11 @@ impl TreePath {
         let mut arg_count: usize = 0;
 
         let serial_str = serial.to_string();
-        let alias_serial = if serial_str.as_str() == "1" { "" } else { serial_str.as_str() };
+        let alias_serial = if serial_str.as_str() == "1" {
+            ""
+        } else {
+            serial_str.as_str()
+        };
 
         for node in pathvec {
             if node.as_str() == "<ARG>" {
