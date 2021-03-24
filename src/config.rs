@@ -8,6 +8,13 @@ const VIOLET_NAME: Option<&'static str> = option_env!("CARGO_PKG_NAME");
 const VIOLET_EXIT_MESSAGE: &str = "Bye! AYAYA ^_^";
 const VIOLET_CONFIG_FILE_NAME: &str = "./config.json";
 
+#[macro_export]
+macro_rules! argcount_err { () => {
+        "ERROR: Wrong argument count; expected {}, found {}!\n\nNOTE: This sometimes happens when you put the <ARG> argument specifier directly into the command as an argument.\n      If you did that, please specify an actual argument instead.\n      Passing <ARG> as a single self-contained argument without quotation marks (like this: please say <ARG> and <ARG>) to a command is considered a mistake on the user's side.\nExample: instead of\n<<VIO>> explain command <ARG>\n  please use\n<<VIO>> explain command help\n"
+    }
+}
+
+
 const VIOLET_HELP_MESSAGE: &str = "Violet is a command interpreter.
 When you see the \"<<VIO>> \" prompt, it means you can enter your command and press <ENTER>.
 ---
@@ -84,7 +91,7 @@ Three aliases would be created for that:
 - [eaa2] <ARG>, which calls exists argument <ARG>;
 - [eaa3] <ARG>, which calls eat <ARG> <ARG>.
 ---
-NOTE: aliases with different arity (number of argument) are considered different commands. Therefore, if we have:
+NOTE: aliases with different arity (number of arguments) are considered different commands. Therefore, if we have:
 1. enable alias <ARG> // arity 1
 2. eat <ARG> <ARG> // arity 2
 The aliases created are going to be:
