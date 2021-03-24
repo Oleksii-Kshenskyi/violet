@@ -214,6 +214,10 @@ impl Interpreter {
 
         loop {
             let user_input = input::get_user_input(config::get_violet_prompt());
+            if user_input.is_empty() {
+                continue;
+            }
+
             let command_to_invoke: String = match self
                 .aliases_for_builtins
                 .get_command_and_args_from_path(&user_input)
