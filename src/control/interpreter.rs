@@ -1,4 +1,5 @@
 use crate::config;
+use crate::argcount_err;
 use crate::data::pathtree::*;
 use crate::io::input;
 use crate::util::string::clone_uppercased;
@@ -263,7 +264,7 @@ impl Interpreter {
                             Ok(InterpretedCommand::RemoveAlias {alias}) => self.remove_alias(alias),
                             Ok(InterpretedCommand::ExplainCommand {command}) => self.explain_command(&command),
 
-                            Err(InterpretationError::WrongArgumentCount { expected, actual}) => println!("ERROR: Wrong argument count; expected {}, found {}!", expected, actual),
+                            Err(InterpretationError::WrongArgumentCount { expected, actual}) => println!(argcount_err!(), expected, actual),
                             Err(InterpretationError::ArgumentEmpty {argument_name}) => println!("ERROR: Argument named [{}] is empty, which is not allowed in this context!", argument_name),
                         }
                     } else {
