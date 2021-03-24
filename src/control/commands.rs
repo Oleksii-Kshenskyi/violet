@@ -94,7 +94,6 @@ pub struct SayThisAndThatCommand;
 impl Action for SayThisAndThatCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
         if args.len() != 2 {
-            println!("Something went horribly wrong...");
             return Err(InterpretationError::WrongArgumentCount {
                 expected: 2,
                 actual: args.len(),
@@ -204,6 +203,13 @@ impl Action for ListAvailableCommandsCommand {
 pub struct ExplainCommandCommand;
 impl Action for ExplainCommandCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args.len() != 1 {
+            return Err(InterpretationError::WrongArgumentCount {
+                expected: 1,
+                actual: args.len(),
+            });
+        }
+
         if args[0].is_empty() {
             return Err(InterpretationError::ArgumentEmpty {
                 argument_name: "command to explain".to_string(),
