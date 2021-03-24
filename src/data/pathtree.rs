@@ -43,11 +43,10 @@ where
             .enumerate()
             .for_each(|(index, one_path)| {
                 if index == path.len() - 1 {
-                    self.tree.insert(
-                        one_path,
+                    self.tree.entry(one_path).or_insert(
                         Some(Node {
                             value: value.to_owned(),
-                        }),
+                        })
                     );
                 } else {
                     self.tree.entry(one_path).or_insert(None);
