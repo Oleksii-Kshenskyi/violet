@@ -13,12 +13,12 @@ pub enum PathTreeErr {
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Node<T> {
-    pub value: T,
+    pub value: Option<T>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct PathTree<T> {
-    pub tree: HashMap<String, Option<Node<T>>>,
+    pub tree: HashMap<String, Node<T>>,
 }
 
 impl<T> PathTree<T>
@@ -45,12 +45,12 @@ where
                 if index == path.len() - 1 {
                     self.tree.insert(
                         one_path,
-                        Some(Node {
-                            value: value.to_owned(),
-                        }),
+                        Node {
+                            value: Some(value.to_owned()),
+                        },
                     );
                 } else {
-                    self.tree.entry(one_path).or_insert(None);
+                    self.tree.entry(one_path).or_insert(Node { value: None });
                 }
             })
     }
@@ -77,11 +77,8 @@ where
 
     pub fn get_by_path(&self, path: &str) -> Option<&Node<T>> {
         let path = TreePath::create_path(&path);
-        if let Some(node_option) = self.tree.get(&path.join(" ")) {
-            node_option.as_ref()
-        } else {
-            None
-        }
+
+        self.tree.get(&path.join(" "))
     }
 
     pub fn drop_by_path(&mut self, path: &str) -> Result<PathTreeOk, PathTreeErr> {
@@ -309,7 +306,7 @@ fn test_tree_setters_and_getters() {
     );
     assert_eq!(
         Some(&Node {
-            value: String::from("test garbage val")
+            value: Some(String::from("test garbage val"))
         }),
         test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
@@ -364,7 +361,7 @@ fn test_pathing_works_with_untrimmed_paths() {
     assert_eq!(None, test_tree.get_by_path("something completely"));
     assert_eq!(
         Some(&Node {
-            value: String::from("test garbage val")
+            value: Some(String::from("test garbage val"))
         }),
         test_tree.get_by_path("something completely bonkers")
     );

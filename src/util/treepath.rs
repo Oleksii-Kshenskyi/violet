@@ -42,10 +42,10 @@ impl TreePath {
     }
 
     pub fn reconstruct_argumented_path(
-        path_to_reconstruct: String,
+        path_to_reconstruct: &str,
         args: Vec<String>,
     ) -> Option<String> {
-        let mut pathvec = TreePath::create_path(path_to_reconstruct.as_str());
+        let mut pathvec = TreePath::create_path(path_to_reconstruct);
         if pathvec
             .iter()
             .filter(|node| node.as_str() == "<ARG>")

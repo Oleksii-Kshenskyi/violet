@@ -137,7 +137,9 @@ impl Interpreter {
             self.builtin_commands
                 .get_by_path(command)
                 .unwrap()
+                .to_owned()
                 .value
+                .unwrap()
                 .help()
         );
     }
@@ -227,11 +229,12 @@ impl Interpreter {
                 Some((path, args)) => {
                     if self.aliases_for_builtins.does_node_exist(&path) {
                         TreePath::reconstruct_argumented_path(
-                            self.aliases_for_builtins
+                            &self.aliases_for_builtins
                                 .get_by_path(&path)
                                 .unwrap()
+                                .to_owned()
                                 .value
-                                .clone(),
+                                .unwrap(),
                             args,
                         )
                         .unwrap_or_else(|| {
@@ -255,8 +258,8 @@ impl Interpreter {
                 }
                 Some((path, args)) => {
                     if self.builtin_commands.does_node_exist(&path) {
-                        let cmd = self.builtin_commands.get_by_path(&path).unwrap();
-                        match cmd.value.execute(args) {
+                        let node = self.builtin_commands.get_by_path(&path).unwrap();
+                        match node.clone().value.unwrap().execute(args) {
                             Ok(InterpretedCommand::DoNothing) => (),
                             Ok(InterpretedCommand::ListAvailableCommands) => self.list_available_commands(),
                             Ok(InterpretedCommand::Exit { exit_message}) => self.exit(exit_message),
