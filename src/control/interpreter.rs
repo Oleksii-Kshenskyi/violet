@@ -1,5 +1,5 @@
-use crate::config;
 use crate::argcount_err;
+use crate::config;
 use crate::data::pathtree::*;
 use crate::io::input;
 use crate::util::string::clone_uppercased;
@@ -112,7 +112,8 @@ impl Interpreter {
         if !self.builtin_commands.tree.is_empty() {
             println!("Available commands:\n");
             for key in self.builtin_commands.tree.keys() {
-                if self.builtin_commands.does_node_exist(key) && !TreePath::is_path_a_shortcut(&key)
+                if self.builtin_commands.does_node_contain_value(key)
+                    && !TreePath::is_path_a_shortcut(&key)
                 {
                     println!("- {};", key);
                 }
@@ -124,7 +125,7 @@ impl Interpreter {
     }
 
     fn explain_command(&mut self, command: &str) {
-        if !self.builtin_commands.does_node_exist(command) {
+        if !self.builtin_commands.does_node_contain_value(command) {
             println!(
                 "ERROR: can't explain command \"{}\" which doesn't exist.",
                 command
@@ -137,13 +138,15 @@ impl Interpreter {
             self.builtin_commands
                 .get_by_path(command)
                 .unwrap()
+                .to_owned()
                 .value
+                .unwrap()
                 .help()
         );
     }
 
     fn add_alias(&mut self, alias: String, for_builtin: String) {
-        if !self.builtin_commands.does_node_exist(&for_builtin) {
+        if !self.builtin_commands.does_node_contain_value(&for_builtin) {
             println!(
                 "ERROR: Can't set alias, builtin command [{}] does not exist!",
                 for_builtin
@@ -151,12 +154,12 @@ impl Interpreter {
             return;
         }
 
-        if self.builtin_commands.does_node_exist(&alias) {
+        if self.builtin_commands.does_node_contain_value(&alias) {
             println!("ERROR: can't set this alias: [{}] is an existing builtin command name. Choose a different name for the alias.", alias);
             return;
         }
 
-        if self.aliases_for_builtins.does_node_exist(&alias) {
+        if self.aliases_for_builtins.does_node_contain_value(&alias) {
             println!("ERROR: Can't set this alias, alias [{}] already exists. Remove the existing one first!", alias);
             return;
         }
@@ -175,14 +178,14 @@ impl Interpreter {
     }
 
     fn remove_alias(&mut self, alias: String) {
-        if self.builtin_commands.does_node_exist(&alias) {
+        if self.builtin_commands.does_node_contain_value(&alias) {
             println!(
                 "ERROR: you can't remove a builtin command. Choose an alias to remove instead."
             );
             return;
         }
 
-        if !self.aliases_for_builtins.does_node_exist(&alias) {
+        if !self.aliases_for_builtins.does_node_contain_value(&alias) {
             println!(
                 "ERROR: alias [{}] does not exist. Can't remove alias which doesn't exist.",
                 &alias
@@ -225,13 +228,15 @@ impl Interpreter {
             {
                 None => user_input,
                 Some((path, args)) => {
-                    if self.aliases_for_builtins.does_node_exist(&path) {
+                    if self.aliases_for_builtins.does_node_contain_value(&path) {
                         TreePath::reconstruct_argumented_path(
-                            self.aliases_for_builtins
+                            &self
+                                .aliases_for_builtins
                                 .get_by_path(&path)
                                 .unwrap()
+                                .to_owned()
                                 .value
-                                .clone(),
+                                .unwrap(),
                             args,
                         )
                         .unwrap_or_else(|| {
@@ -254,9 +259,9 @@ impl Interpreter {
                     );
                 }
                 Some((path, args)) => {
-                    if self.builtin_commands.does_node_exist(&path) {
-                        let cmd = self.builtin_commands.get_by_path(&path).unwrap();
-                        match cmd.value.execute(args) {
+                    if self.builtin_commands.does_node_contain_value(&path) {
+                        let node = self.builtin_commands.get_by_path(&path).unwrap();
+                        match node.clone().value.unwrap().execute(args) {
                             Ok(InterpretedCommand::DoNothing) => (),
                             Ok(InterpretedCommand::ListAvailableCommands) => self.list_available_commands(),
                             Ok(InterpretedCommand::Exit { exit_message}) => self.exit(exit_message),

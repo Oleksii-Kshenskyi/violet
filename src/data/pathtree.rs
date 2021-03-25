@@ -13,12 +13,12 @@ pub enum PathTreeErr {
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Node<T> {
-    pub value: T,
+    pub value: Option<T>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct PathTree<T> {
-    pub tree: HashMap<String, Option<Node<T>>>,
+    pub tree: HashMap<String, Node<T>>,
 }
 
 impl<T> PathTree<T>
@@ -45,12 +45,12 @@ where
                 if index == path.len() - 1 {
                     self.tree.insert(
                         one_path,
-                        Some(Node {
-                            value: value.to_owned(),
-                        }),
+                        Node {
+                            value: Some(value.to_owned()),
+                        },
                     );
                 } else {
-                    self.tree.entry(one_path).or_insert(None);
+                    self.tree.entry(one_path).or_insert(Node { value: None });
                 }
             })
     }
@@ -59,13 +59,13 @@ where
         self.set_by_path(value.clone(), path);
 
         let mut shortcut_name = TreePath::create_shortcut(path, 1);
-        if !self.does_node_exist(&shortcut_name) {
+        if !self.does_node_contain_value(&shortcut_name) {
             self.set_by_path(value.clone(), &shortcut_name);
         } else {
             let mut alias_serial_number: usize = 2;
             shortcut_name = loop {
                 let current_alias = TreePath::create_shortcut(path, alias_serial_number);
-                if !self.does_node_exist(&current_alias) {
+                if !self.does_node_contain_value(&current_alias) {
                     break current_alias;
                 } else {
                     alias_serial_number += 1;
@@ -77,15 +77,12 @@ where
 
     pub fn get_by_path(&self, path: &str) -> Option<&Node<T>> {
         let path = TreePath::create_path(&path);
-        if let Some(node_option) = self.tree.get(&path.join(" ")) {
-            node_option.as_ref()
-        } else {
-            None
-        }
+
+        self.tree.get(&path.join(" "))
     }
 
     pub fn drop_by_path(&mut self, path: &str) -> Result<PathTreeOk, PathTreeErr> {
-        if self.does_node_exist(path) {
+        if self.does_node_contain_value(path) {
             self.tree.remove(path).unwrap();
             Ok(PathTreeOk::DropOk)
         } else {
@@ -97,11 +94,11 @@ where
         self.tree.contains_key(&TreePath::prettify(path))
     }
 
-    pub fn does_node_exist(&self, path: &str) -> bool {
+    pub fn does_node_contain_value(&self, path: &str) -> bool {
         if !self.does_path_exist(&path) {
             false
         } else {
-            self.get_by_path(&path).is_some()
+            self.get_by_path(&path).unwrap().value.is_some()
         }
     }
 
@@ -185,7 +182,7 @@ where
         }
 
         let resulting_path = resulting_pathvec.join(" ");
-        if self.does_node_exist(resulting_path.as_str()) {
+        if self.does_node_contain_value(resulting_path.as_str()) {
             Some((resulting_path, args))
         } else {
             None
@@ -266,15 +263,18 @@ fn test_tree_setters_and_getters() {
         "test garbage val".to_string(),
         "そっか おふの $%?рашин /fourth .fifth \\sixth",
     );
-    assert_eq!(false, test_tree.does_node_exist("そっか"));
+    assert_eq!(false, test_tree.does_node_contain_value("そっか"));
     assert_eq!(true, test_tree.does_path_exist("そっか"));
-    assert_eq!(false, test_tree.does_node_exist("そっか おふの"));
+    assert_eq!(false, test_tree.does_node_contain_value("そっか おふの"));
     assert_eq!(true, test_tree.does_path_exist("そっか おふの"));
-    assert_eq!(false, test_tree.does_node_exist("そっか おふの $%?рашин"));
+    assert_eq!(
+        false,
+        test_tree.does_node_contain_value("そっか おふの $%?рашин")
+    );
     assert_eq!(true, test_tree.does_path_exist("そっか おふの $%?рашин"));
     assert_eq!(
         false,
-        test_tree.does_node_exist("そっか おふの $%?рашин /fourth")
+        test_tree.does_node_contain_value("そっか おふの $%?рашин /fourth")
     );
     assert_eq!(
         true,
@@ -282,7 +282,7 @@ fn test_tree_setters_and_getters() {
     );
     assert_eq!(
         false,
-        test_tree.does_node_exist("そっか おふの $%?рашин /fourth .fifth")
+        test_tree.does_node_contain_value("そっか おふの $%?рашин /fourth .fifth")
     );
     assert_eq!(
         true,
@@ -290,26 +290,38 @@ fn test_tree_setters_and_getters() {
     );
     assert_eq!(
         true,
-        test_tree.does_node_exist("そっか おふの $%?рашин /fourth .fifth \\sixth")
+        test_tree.does_node_contain_value("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
     assert_eq!(
         true,
         test_tree.does_path_exist("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
-    assert_eq!(None, test_tree.get_by_path("そっか"));
-    assert_eq!(None, test_tree.get_by_path("そっか おふの"));
-    assert_eq!(None, test_tree.get_by_path("そっか おふの $%?рашин"));
+    assert_eq!(None, test_tree.get_by_path("そっか").unwrap().value);
+    assert_eq!(None, test_tree.get_by_path("そっか おふの").unwrap().value);
     assert_eq!(
         None,
-        test_tree.get_by_path("そっか おふの $%?рашин /fourth")
+        test_tree
+            .get_by_path("そっか おふの $%?рашин")
+            .unwrap()
+            .value
     );
     assert_eq!(
         None,
-        test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth")
+        test_tree
+            .get_by_path("そっか おふの $%?рашин /fourth")
+            .unwrap()
+            .value
+    );
+    assert_eq!(
+        None,
+        test_tree
+            .get_by_path("そっか おふの $%?рашин /fourth .fifth")
+            .unwrap()
+            .value
     );
     assert_eq!(
         Some(&Node {
-            value: String::from("test garbage val")
+            value: Some(String::from("test garbage val"))
         }),
         test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth \\sixth")
     );
@@ -329,7 +341,7 @@ fn check_empty_path_creation() {
     );
     assert_eq!(Vec::<String>::new(), TreePath::get_path_hierarchy(""));
 
-    assert_eq!(false, test_tree.does_node_exist(""));
+    assert_eq!(false, test_tree.does_node_contain_value(""));
     assert_eq!(None, test_tree.get_by_path(""));
 }
 
@@ -347,24 +359,30 @@ fn test_pathing_works_with_untrimmed_paths() {
 
     test_tree.set_by_path("test garbage val".to_string(), path);
 
-    assert_eq!(false, test_tree.does_node_exist("something"));
+    assert_eq!(false, test_tree.does_node_contain_value("something"));
     assert_eq!(true, test_tree.does_path_exist("something"));
-    assert_eq!(false, test_tree.does_node_exist("something completely"));
+    assert_eq!(
+        false,
+        test_tree.does_node_contain_value("something completely")
+    );
     assert_eq!(true, test_tree.does_path_exist("something completely"));
     assert_eq!(
         true,
-        test_tree.does_node_exist("something completely bonkers")
+        test_tree.does_node_contain_value("something completely bonkers")
     );
     assert_eq!(
         true,
         test_tree.does_path_exist("something completely bonkers")
     );
 
-    assert_eq!(None, test_tree.get_by_path("something"));
-    assert_eq!(None, test_tree.get_by_path("something completely"));
+    assert_eq!(None, test_tree.get_by_path("something").unwrap().value);
+    assert_eq!(
+        None,
+        test_tree.get_by_path("something completely").unwrap().value
+    );
     assert_eq!(
         Some(&Node {
-            value: String::from("test garbage val")
+            value: Some(String::from("test garbage val"))
         }),
         test_tree.get_by_path("something completely bonkers")
     );
