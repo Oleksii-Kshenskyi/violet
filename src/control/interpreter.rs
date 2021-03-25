@@ -1,5 +1,5 @@
-use crate::config;
 use crate::argcount_err;
+use crate::config;
 use crate::data::pathtree::*;
 use crate::io::input;
 use crate::util::string::clone_uppercased;
@@ -112,7 +112,8 @@ impl Interpreter {
         if !self.builtin_commands.tree.is_empty() {
             println!("Available commands:\n");
             for key in self.builtin_commands.tree.keys() {
-                if self.builtin_commands.does_node_contain_value(key) && !TreePath::is_path_a_shortcut(&key)
+                if self.builtin_commands.does_node_contain_value(key)
+                    && !TreePath::is_path_a_shortcut(&key)
                 {
                     println!("- {};", key);
                 }
@@ -229,7 +230,8 @@ impl Interpreter {
                 Some((path, args)) => {
                     if self.aliases_for_builtins.does_node_contain_value(&path) {
                         TreePath::reconstruct_argumented_path(
-                            &self.aliases_for_builtins
+                            &self
+                                .aliases_for_builtins
                                 .get_by_path(&path)
                                 .unwrap()
                                 .to_owned()

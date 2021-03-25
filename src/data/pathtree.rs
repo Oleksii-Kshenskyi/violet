@@ -267,7 +267,10 @@ fn test_tree_setters_and_getters() {
     assert_eq!(true, test_tree.does_path_exist("そっか"));
     assert_eq!(false, test_tree.does_node_contain_value("そっか おふの"));
     assert_eq!(true, test_tree.does_path_exist("そっか おふの"));
-    assert_eq!(false, test_tree.does_node_contain_value("そっか おふの $%?рашин"));
+    assert_eq!(
+        false,
+        test_tree.does_node_contain_value("そっか おふの $%?рашин")
+    );
     assert_eq!(true, test_tree.does_path_exist("そっか おふの $%?рашин"));
     assert_eq!(
         false,
@@ -295,14 +298,26 @@ fn test_tree_setters_and_getters() {
     );
     assert_eq!(None, test_tree.get_by_path("そっか").unwrap().value);
     assert_eq!(None, test_tree.get_by_path("そっか おふの").unwrap().value);
-    assert_eq!(None, test_tree.get_by_path("そっか おふの $%?рашин").unwrap().value);
     assert_eq!(
         None,
-        test_tree.get_by_path("そっか おふの $%?рашин /fourth").unwrap().value
+        test_tree
+            .get_by_path("そっか おふの $%?рашин")
+            .unwrap()
+            .value
     );
     assert_eq!(
         None,
-        test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth").unwrap().value
+        test_tree
+            .get_by_path("そっか おふの $%?рашин /fourth")
+            .unwrap()
+            .value
+    );
+    assert_eq!(
+        None,
+        test_tree
+            .get_by_path("そっか おふの $%?рашин /fourth .fifth")
+            .unwrap()
+            .value
     );
     assert_eq!(
         Some(&Node {
@@ -346,7 +361,10 @@ fn test_pathing_works_with_untrimmed_paths() {
 
     assert_eq!(false, test_tree.does_node_contain_value("something"));
     assert_eq!(true, test_tree.does_path_exist("something"));
-    assert_eq!(false, test_tree.does_node_contain_value("something completely"));
+    assert_eq!(
+        false,
+        test_tree.does_node_contain_value("something completely")
+    );
     assert_eq!(true, test_tree.does_path_exist("something completely"));
     assert_eq!(
         true,
@@ -358,7 +376,10 @@ fn test_pathing_works_with_untrimmed_paths() {
     );
 
     assert_eq!(None, test_tree.get_by_path("something").unwrap().value);
-    assert_eq!(None, test_tree.get_by_path("something completely").unwrap().value);
+    assert_eq!(
+        None,
+        test_tree.get_by_path("something completely").unwrap().value
+    );
     assert_eq!(
         Some(&Node {
             value: Some(String::from("test garbage val"))

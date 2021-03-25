@@ -14,7 +14,6 @@ macro_rules! argcount_err { () => {
     }
 }
 
-
 const VIOLET_HELP_MESSAGE: &str = "Violet is a command interpreter.
 When you see the \"<<VIO>> \" prompt, it means you can enter your command and press <ENTER>.
 ---
