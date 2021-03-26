@@ -52,13 +52,13 @@ where
             .enumerate()
             .for_each(|(index, one_path)| {
                 if index == path.len() - 1 {
-                    self.tree.insert(
-                        one_path,
+                    let inserted_node = self.tree.entry(
+                        one_path).or_insert(
                         Node {
-                            share_count: 1,
+                            share_count: 0,
                             value: Some(value.to_owned()),
-                        },
-                    );
+                        });
+                    inserted_node.share_count += 1;
                 } else {
                     let null_node = self
                                                     .tree
@@ -101,18 +101,18 @@ where
 
 
 
-    fn flag_hierarchy(&mut self, path: &str) -> Vec<DropType> {
+    fn flag_hierarchy_for_dropping(&mut self, path: &str) -> Vec<DropType> {
         let hierarchy = TreePath::get_path_hierarchy(path);
         let mut drops: Vec<DropType> = vec![];
 
-        for single_path in hierarchy {
-            match self.tree.get_mut(&single_path) {
+        for (path_index, single_path) in hierarchy.iter().enumerate() {
+            match self.tree.get_mut(single_path) {
                 None => unreachable!("!!! PathTree::drop_hierarchy: node does not exist !!! Most likely the aliases JSON file is corrupted."),
                 Some(node) => {
                     node.share_count -= 1;
                     if node.share_count == 0 {
                         drops.push(DropType::RemoveNode(single_path.to_owned()));
-                    } else if node.value.is_some() {
+                    } else if node.value.is_some() && path_index == hierarchy.len() - 1 {
                         drops.push(DropType::ActiveToNull(single_path.to_owned()));
                     }
                 },
@@ -123,7 +123,7 @@ where
     }
 
     fn drop_hierarchy(&mut self, path: &str) {
-        let drops = self.flag_hierarchy(path);
+        let drops = self.flag_hierarchy_for_dropping(path);
 
         for drop in drops {
             match drop {

@@ -187,7 +187,7 @@ impl Interpreter {
 
         if !self.aliases_for_builtins.does_node_contain_value(&alias) {
             println!(
-                "ERROR: alias [{}] does not exist. Can't remove alias which doesn't exist.",
+                "ERROR: alias {} does not exist. Can't remove alias which doesn't exist.",
                 &alias
             );
             return;
