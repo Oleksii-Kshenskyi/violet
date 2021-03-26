@@ -197,7 +197,7 @@ impl Interpreter {
             Ok(PathTreeOk::DropOk) => (),
             Err(PathTreeErr::DropNodeDoesNotExist) => {
                 println!("ERROR: PathTree: node [{}] does not exist!", &alias);
-            },
+            }
             Err(PathTreeErr::DropNodeIsNull) => {
                 println!("ERROR: this node is a null node. Null nodes can't be explicitly deleted by a user.");
             }

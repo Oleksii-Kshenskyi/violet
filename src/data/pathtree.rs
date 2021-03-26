@@ -12,8 +12,6 @@ pub enum PathTreeErr {
     DropNodeIsNull,
 }
 
-
-
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Node<T> {
     pub share_count: usize,
@@ -52,21 +50,16 @@ where
             .enumerate()
             .for_each(|(index, one_path)| {
                 if index == path.len() - 1 {
-                    let inserted_node = self.tree.entry(
-                        one_path).or_insert(
-                        Node {
-                            share_count: 0,
-                            value: Some(value.to_owned()),
-                        });
+                    let inserted_node = self.tree.entry(one_path).or_insert(Node {
+                        share_count: 0,
+                        value: Some(value.to_owned()),
+                    });
                     inserted_node.share_count += 1;
                 } else {
-                    let null_node = self
-                                                    .tree
-                                                    .entry(one_path)
-                                                    .or_insert(Node {
-                                                        share_count: 0,
-                                                        value: None,
-                                                    });
+                    let null_node = self.tree.entry(one_path).or_insert(Node {
+                        share_count: 0,
+                        value: None,
+                    });
                     null_node.share_count += 1;
                 }
             })
@@ -98,9 +91,6 @@ where
         self.tree.get(&path.join(" "))
     }
 
-
-
-
     fn flag_hierarchy_for_dropping(&mut self, path: &str) -> Vec<DropType> {
         let hierarchy = TreePath::get_path_hierarchy(path);
         let mut drops: Vec<DropType> = vec![];
@@ -129,14 +119,14 @@ where
             match drop {
                 DropType::RemoveNode(path) => {
                     self.tree.remove(&path).expect("ERROR: drop_hierarchy(): remove node failed, something is wrong with PathTree::flag_hierarchy() logic.");
-                },
+                }
                 DropType::ActiveToNull(path) => {
                     let node = self.tree.get_mut(&path).expect("ERROR: drop_hierarchy(): setting active node to null failed, something is wrong with PathTree::flag_hierarchy() logic.");
-                    if !node.value.is_some() {
+                    if node.value.is_none() {
                         panic!("ERROR: PathTree::drop_hierarchy(): tried to set an active node to null, but it's already a null node.");
                     }
                     node.value = None;
-                },
+                }
             }
         }
     }
@@ -145,13 +135,13 @@ where
         match self.get_by_path(path) {
             None => Err(PathTreeErr::DropNodeDoesNotExist),
             Some(node) => {
-                if let Some(_) = node.value {
+                if node.value.is_some() {
                     self.drop_hierarchy(path);
                     Ok(PathTreeOk::DropOk)
                 } else {
                     Err(PathTreeErr::DropNodeIsNull)
                 }
-            },
+            }
         }
     }
 
