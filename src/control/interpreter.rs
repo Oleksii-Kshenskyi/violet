@@ -187,7 +187,7 @@ impl Interpreter {
 
         if !self.aliases_for_builtins.does_node_contain_value(&alias) {
             println!(
-                "ERROR: alias [{}] does not exist. Can't remove alias which doesn't exist.",
+                "ERROR: alias {} does not exist. Can't remove alias which doesn't exist.",
                 &alias
             );
             return;
@@ -196,7 +196,10 @@ impl Interpreter {
         match self.aliases_for_builtins.drop_by_path(&alias) {
             Ok(PathTreeOk::DropOk) => (),
             Err(PathTreeErr::DropNodeDoesNotExist) => {
-                println!("ERROR: PathTree: node [{}] does not exist!", &alias)
+                println!("ERROR: PathTree: node [{}] does not exist!", &alias);
+            }
+            Err(PathTreeErr::DropNodeIsNull) => {
+                println!("ERROR: this node is a null node. Null nodes can't be explicitly deleted by a user.");
             }
         };
     }
