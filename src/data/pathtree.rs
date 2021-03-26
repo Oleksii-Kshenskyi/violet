@@ -9,11 +9,20 @@ pub enum PathTreeOk {
 
 pub enum PathTreeErr {
     DropNodeDoesNotExist,
+    DropNodeIsNull,
 }
+
+
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Node<T> {
+    pub share_count: usize,
     pub value: Option<T>,
+}
+
+enum DropType {
+    RemoveNode(String),
+    ActiveToNull(String),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -46,11 +55,19 @@ where
                     self.tree.insert(
                         one_path,
                         Node {
+                            share_count: 1,
                             value: Some(value.to_owned()),
                         },
                     );
                 } else {
-                    self.tree.entry(one_path).or_insert(Node { value: None });
+                    let null_node = self
+                                                    .tree
+                                                    .entry(one_path)
+                                                    .or_insert(Node {
+                                                        share_count: 0,
+                                                        value: None,
+                                                    });
+                    null_node.share_count += 1;
                 }
             })
     }
@@ -81,12 +98,60 @@ where
         self.tree.get(&path.join(" "))
     }
 
+
+
+
+    fn flag_hierarchy(&mut self, path: &str) -> Vec<DropType> {
+        let hierarchy = TreePath::get_path_hierarchy(path);
+        let mut drops: Vec<DropType> = vec![];
+
+        for single_path in hierarchy {
+            match self.tree.get_mut(&single_path) {
+                None => unreachable!("!!! PathTree::drop_hierarchy: node does not exist !!! Most likely the aliases JSON file is corrupted."),
+                Some(node) => {
+                    node.share_count -= 1;
+                    if node.share_count == 0 {
+                        drops.push(DropType::RemoveNode(single_path.to_owned()));
+                    } else if node.value.is_some() {
+                        drops.push(DropType::ActiveToNull(single_path.to_owned()));
+                    }
+                },
+            }
+        }
+
+        drops
+    }
+
+    fn drop_hierarchy(&mut self, path: &str) {
+        let drops = self.flag_hierarchy(path);
+
+        for drop in drops {
+            match drop {
+                DropType::RemoveNode(path) => {
+                    self.tree.remove(&path).expect("ERROR: drop_hierarchy(): remove node failed, something is wrong with PathTree::flag_hierarchy() logic.");
+                },
+                DropType::ActiveToNull(path) => {
+                    let node = self.tree.get_mut(&path).expect("ERROR: drop_hierarchy(): setting active node to null failed, something is wrong with PathTree::flag_hierarchy() logic.");
+                    if !node.value.is_some() {
+                        panic!("ERROR: PathTree::drop_hierarchy(): tried to set an active node to null, but it's already a null node.");
+                    }
+                    node.value = None;
+                },
+            }
+        }
+    }
+
     pub fn drop_by_path(&mut self, path: &str) -> Result<PathTreeOk, PathTreeErr> {
-        if self.does_node_contain_value(path) {
-            self.tree.remove(path).unwrap();
-            Ok(PathTreeOk::DropOk)
-        } else {
-            Err(PathTreeErr::DropNodeDoesNotExist)
+        match self.get_by_path(path) {
+            None => Err(PathTreeErr::DropNodeDoesNotExist),
+            Some(node) => {
+                if let Some(_) = node.value {
+                    self.drop_hierarchy(path);
+                    Ok(PathTreeOk::DropOk)
+                } else {
+                    Err(PathTreeErr::DropNodeIsNull)
+                }
+            },
         }
     }
 
@@ -321,6 +386,7 @@ fn test_tree_setters_and_getters() {
     );
     assert_eq!(
         Some(&Node {
+            share_count: 1,
             value: Some(String::from("test garbage val"))
         }),
         test_tree.get_by_path("そっか おふの $%?рашин /fourth .fifth \\sixth")
@@ -382,6 +448,7 @@ fn test_pathing_works_with_untrimmed_paths() {
     );
     assert_eq!(
         Some(&Node {
+            share_count: 1,
             value: Some(String::from("test garbage val"))
         }),
         test_tree.get_by_path("something completely bonkers")
