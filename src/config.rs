@@ -55,6 +55,18 @@ Example:
 what is your name => This is a \"path\".
 what, what is, what is your, what is your name => those are all \"nodes\".
 ---
+All nodes can be either null nodes or active nodes. When you add an alias for example, Violet creates several of such nodes. For example, if you:
+<<VIO>> add alias \"this is an alias for exit\" for builtin \"exit\"
+Violet creates the following nodes:
+- add => null node
+- add alias => null node
+- add alias <ARG> => null node
+- add alias <ARG> for => null node
+- add alias <ARG> for builtin => null node
+- add alias <ARG> for builtin <ARG> => active node, with value \"exit\"
+Null nodes are nodes that already exist and have path (such as \"add\" in the example), but their value is null (no value).
+Active nodes are nodes that exist, have value (such as \"add alias <ARG> for builtin <ARG>), and play an active role in Violet's operation. For example, from the point of adding the above active node, every time you invoke path \"this is an alias for exit\", Violet will invoke the \"exit\" command.
+---
 Violet has a command shortcut syntax. It works in the following way.
 The shortcut command itself is enclosed in [ and ].
 The letters for the command are first letters of each node in the original command.

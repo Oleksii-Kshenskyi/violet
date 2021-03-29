@@ -25,7 +25,7 @@ pub enum InterpretationError {
 }
 
 #[enum_dispatch]
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum Command {
     ExitCommand,
     CurrentTimeCommand,
@@ -44,7 +44,7 @@ pub trait Action {
     fn help(&self) -> &str;
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct ExitCommand;
 impl Action for ExitCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -58,7 +58,7 @@ impl Action for ExitCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct CurrentTimeCommand;
 impl Action for CurrentTimeCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -75,7 +75,7 @@ impl Action for CurrentTimeCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct WhatsYourNameCommand;
 impl Action for WhatsYourNameCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -89,7 +89,7 @@ impl Action for WhatsYourNameCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SayThisAndThatCommand;
 impl Action for SayThisAndThatCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -113,7 +113,7 @@ impl Action for SayThisAndThatCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct AddAliasCommand;
 impl Action for AddAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -146,7 +146,7 @@ impl Action for AddAliasCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct RemoveAliasCommand;
 impl Action for RemoveAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -173,7 +173,7 @@ impl Action for RemoveAliasCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct HelpCommand;
 impl Action for HelpCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -187,7 +187,7 @@ impl Action for HelpCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct ListAvailableCommandsCommand;
 impl Action for ListAvailableCommandsCommand {
     fn execute(&self, _args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
@@ -199,7 +199,7 @@ impl Action for ListAvailableCommandsCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct ExplainCommandCommand;
 impl Action for ExplainCommandCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
