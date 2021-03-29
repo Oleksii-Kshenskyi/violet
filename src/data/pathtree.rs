@@ -54,7 +54,9 @@ where
                         share_count: 0,
                         value: Some(value.to_owned()),
                     });
+
                     inserted_node.share_count += 1;
+
                     if let None = inserted_node.value {
                         inserted_node.value = Some(value.to_owned());
                     }
@@ -63,6 +65,7 @@ where
                         share_count: 0,
                         value: None,
                     });
+
                     null_node.share_count += 1;
                 }
             })
@@ -100,7 +103,7 @@ where
 
         for (path_index, single_path) in hierarchy.iter().enumerate() {
             match self.tree.get_mut(single_path) {
-                None => unreachable!("!!! PathTree::drop_hierarchy: node does not exist !!! Most likely the aliases JSON file is corrupted."),
+                None => unreachable!("!!! PathTree::flag_hierarchy_for_dropping(): node does not exist !!! Most likely the aliases JSON file is corrupted."),
                 Some(node) => {
                     node.share_count -= 1;
                     if node.share_count == 0 {
