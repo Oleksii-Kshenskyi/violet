@@ -57,7 +57,7 @@ where
 
                     inserted_node.share_count += 1;
 
-                    if let None = inserted_node.value {
+                    if inserted_node.value.is_none() {
                         inserted_node.value = Some(value.to_owned());
                     }
                 } else {
@@ -160,14 +160,7 @@ where
     }
 
     pub fn is_node_active(&self, path: &str) -> bool {
-        if !self.does_node_exist(path) {
-            false
-        } else if self.is_node_null(path) {
-            false
-        } else {
-            true
-        }
-
+        self.does_node_exist(path) && !self.is_node_null(path)
     }
 
     fn attempt_multiword_parsing(&self, path: &str) -> Option<(String, Vec<String>)> {
@@ -335,10 +328,7 @@ fn test_tree_setters_and_getters() {
     assert_eq!(true, test_tree.does_node_exist("そっか"));
     assert_eq!(false, test_tree.is_node_active("そっか おふの"));
     assert_eq!(true, test_tree.does_node_exist("そっか おふの"));
-    assert_eq!(
-        false,
-        test_tree.is_node_active("そっか おふの $%?рашин")
-    );
+    assert_eq!(false, test_tree.is_node_active("そっか おふの $%?рашин"));
     assert_eq!(true, test_tree.does_node_exist("そっか おふの $%?рашин"));
     assert_eq!(
         false,
@@ -430,10 +420,7 @@ fn test_pathing_works_with_untrimmed_paths() {
 
     assert_eq!(false, test_tree.is_node_active("something"));
     assert_eq!(true, test_tree.does_node_exist("something"));
-    assert_eq!(
-        false,
-        test_tree.is_node_active("something completely")
-    );
+    assert_eq!(false, test_tree.is_node_active("something completely"));
     assert_eq!(true, test_tree.does_node_exist("something completely"));
     assert_eq!(
         true,

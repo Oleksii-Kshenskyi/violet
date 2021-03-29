@@ -112,8 +112,7 @@ impl Interpreter {
         if !self.builtin_commands.tree.is_empty() {
             println!("Available commands:\n");
             for key in self.builtin_commands.tree.keys() {
-                if self.builtin_commands.is_node_active(key)
-                    && !TreePath::is_path_a_shortcut(&key)
+                if self.builtin_commands.is_node_active(key) && !TreePath::is_path_a_shortcut(&key)
                 {
                     println!("- {};", key);
                 }
