@@ -20,8 +20,8 @@ pub enum InterpretedCommand {
 }
 
 pub enum InterpretationError {
-    WrongArgumentCount { expected: usize, actual: usize },
     ArgumentEmpty { argument_name: String },
+    ArgSpecifierMisused,
 }
 
 #[enum_dispatch]
@@ -93,12 +93,10 @@ impl Action for WhatsYourNameCommand {
 pub struct SayThisAndThatCommand;
 impl Action for SayThisAndThatCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
-        if args.len() != 2 {
-            return Err(InterpretationError::WrongArgumentCount {
-                expected: 2,
-                actual: args.len(),
-            });
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
         }
+
         println!(
             "Gotcha. Saying {} and {}!",
             args.get(0).unwrap(),
@@ -117,11 +115,8 @@ impl Action for SayThisAndThatCommand {
 pub struct AddAliasCommand;
 impl Action for AddAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
-        if args.len() != 2 {
-            return Err(InterpretationError::WrongArgumentCount {
-                expected: 2,
-                actual: args.len(),
-            });
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
         }
 
         if args[0].is_empty() {
@@ -150,11 +145,8 @@ impl Action for AddAliasCommand {
 pub struct RemoveAliasCommand;
 impl Action for RemoveAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
-        if args.len() != 1 {
-            return Err(InterpretationError::WrongArgumentCount {
-                expected: 1,
-                actual: args.len(),
-            });
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
         }
 
         if args[0].is_empty() {
@@ -203,11 +195,8 @@ impl Action for ListAvailableCommandsCommand {
 pub struct ExplainCommandCommand;
 impl Action for ExplainCommandCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
-        if args.len() != 1 {
-            return Err(InterpretationError::WrongArgumentCount {
-                expected: 1,
-                actual: args.len(),
-            });
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
         }
 
         if args[0].is_empty() {
