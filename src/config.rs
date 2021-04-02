@@ -240,5 +240,5 @@ pub fn get_help_message() -> String {
 }
 
 pub fn get_argspec_misused_error_message() -> String {
-  ARGSPEC_MISUSED_ERROR_MESSAGE.to_string()
+    ARGSPEC_MISUSED_ERROR_MESSAGE.to_string()
 }

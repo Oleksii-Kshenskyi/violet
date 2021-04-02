@@ -261,7 +261,8 @@ where
                 &argumented,
                 TreePath::get_last_node(&path).unwrap().as_str(),
             ));
-            if self.does_node_exist(&argumented.join(" ")) && argumented.last().unwrap() == "<ARG>" {
+            if self.does_node_exist(&argumented.join(" ")) && argumented.last().unwrap() == "<ARG>"
+            {
                 args.push("<ARG>".to_owned());
                 continue;
             } else if self.does_node_exist(&argumented.join(" ")) {

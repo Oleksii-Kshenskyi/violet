@@ -41,10 +41,7 @@ impl TreePath {
         }
     }
 
-    pub fn reconstruct_argumented_path(
-        path_to_reconstruct: &str,
-        args: Vec<String>,
-    ) -> String {
+    pub fn reconstruct_argumented_path(path_to_reconstruct: &str, args: Vec<String>) -> String {
         let mut pathvec = TreePath::create_path(path_to_reconstruct);
 
         let mut arg_index: usize = 0;
