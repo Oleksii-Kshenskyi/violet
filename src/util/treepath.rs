@@ -44,25 +44,20 @@ impl TreePath {
     pub fn reconstruct_argumented_path(
         path_to_reconstruct: &str,
         args: Vec<String>,
-    ) -> Option<String> {
+    ) -> String {
         let mut pathvec = TreePath::create_path(path_to_reconstruct);
-        let arg_count = TreePath::count_x_nodes_for_path(path_to_reconstruct, "<ARG>");
-        if arg_count != args.len()
-        {
-            unreachable!(format!("TreePath::reconstruct_argumented_path(): actual number of arguments '{}' is not equal to the expected amount of '{}'", args.len(), arg_count));
-        } else {
-            let mut arg_index: usize = 0;
-            for node in pathvec.iter_mut() {
-                if node.as_str() == "<ARG>" {
-                    let new_arg = format!("\"{}\"", args[arg_index]).to_string();
-                    *node = new_arg;
 
-                    arg_index += 1;
-                }
+        let mut arg_index: usize = 0;
+        for node in pathvec.iter_mut() {
+            if node.as_str() == "<ARG>" {
+                let new_arg = format!("\"{}\"", args[arg_index]).to_string();
+                *node = new_arg;
+
+                arg_index += 1;
             }
-
-            Some(pathvec.join(" "))
         }
+
+        pathvec.join(" ")
     }
 
     pub fn count_x_nodes_for_path(path: &str, x_node: &str) -> usize {

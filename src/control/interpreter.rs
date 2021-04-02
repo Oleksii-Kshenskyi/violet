@@ -240,9 +240,6 @@ impl Interpreter {
                                 .unwrap(),
                             args,
                         )
-                        .unwrap_or_else(|| {
-                            String::from("ERROR: keyword <ARG> used in the wrong context, or")
-                        })
                     } else {
                         user_input
                     }
@@ -270,6 +267,7 @@ impl Interpreter {
                             Ok(InterpretedCommand::RemoveAlias {alias}) => self.remove_alias(alias),
                             Ok(InterpretedCommand::ExplainCommand {command}) => self.explain_command(&command),
 
+                            Err(InterpretationError::ArgSpecifierMisused) => println!("{}", config::get_argspec_misused_error_message()),
                             Err(InterpretationError::ArgumentEmpty {argument_name}) => println!("ERROR: Argument named [{}] is empty, which is not allowed in this context!", argument_name),
                         }
                     } else {

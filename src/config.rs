@@ -8,13 +8,10 @@ const VIOLET_NAME: Option<&'static str> = option_env!("CARGO_PKG_NAME");
 const VIOLET_EXIT_MESSAGE: &str = "Bye! AYAYA ^_^";
 const VIOLET_CONFIG_FILE_NAME: &str = "./config.json";
 
-#[macro_export]
-macro_rules! argcount_err { () => {
-        "ERROR: Wrong argument count; expected {}, found {}!\n\nNOTE: This sometimes happens when you put the <ARG> argument specifier directly into the command as an argument.\n      If you did that, please specify an actual argument instead.\n      Passing <ARG> as a single self-contained argument without quotation marks (like this: please say <ARG> and <ARG>) to a command is considered a mistake on the user's side.\nExample: instead of\n<<VIO>> explain command <ARG>\n  please use\n<<VIO>> explain command help\n"
-    }
-}
+const ARGSPEC_MISUSED_ERROR_MESSAGE: &str =
+        "ERROR: <ARG> specifier used in a command directly as an argument!\n\nNOTE: please specify an actual argument instead.\nPassing <ARG> as a single self-contained argument without quotation marks (like this: please say <ARG> and <ARG>) to a command is considered a mistake on the user's side.\nExample: instead of\n<<VIO>> explain command <ARG>\n  please use\n<<VIO>> explain command help\n";
 
-const VIOLET_HELP_MESSAGE: &str = "Violet is a command interpreter.
+const VIOLET_HELP_MESSAGE: &str = "\n===HELP MESSAGE START===\nViolet is a command interpreter.
 When you see the \"<<VIO>> \" prompt, it means you can enter your command and press <ENTER>.
 ---
 Violet is going to try to interpret that command or let you know if it doesn't know such a command.
@@ -58,14 +55,14 @@ what, what is, what is your, what is your name => those are all \"nodes\".
 All nodes can be either null nodes or active nodes. When you add an alias for example, Violet creates several of such nodes. For example, if you:
 <<VIO>> add alias \"this is an alias for exit\" for builtin \"exit\"
 Violet creates the following nodes:
-- add => null node
-- add alias => null node
-- add alias <ARG> => null node
-- add alias <ARG> for => null node
-- add alias <ARG> for builtin => null node
-- add alias <ARG> for builtin <ARG> => active node, with value \"exit\"
-Null nodes are nodes that already exist and have path (such as \"add\" in the example), but their value is null (no value).
-Active nodes are nodes that exist, have value (such as \"add alias <ARG> for builtin <ARG>), and play an active role in Violet's operation. For example, from the point of adding the above active node, every time you invoke path \"this is an alias for exit\", Violet will invoke the \"exit\" command.
+- this => null node
+- this is => null node
+- this is an => null node
+- this is an alias => null node
+- this is an alias for => null node
+- this is an alias for exit => active node, with value \"exit\"
+Null nodes are nodes that already exist and have path (such as \"this\" in the example), but their value is null (no value).
+Active nodes are nodes that exist, have value (such as \"this is an alias for exit\" that has value \"exit\"), and play an active role in Violet's operation. For example, from the point of adding the above active node, every time you invoke path \"this is an alias for exit\", Violet will invoke the \"exit\" command.
 ---
 Violet has a command shortcut syntax. It works in the following way.
 The shortcut command itself is enclosed in [ and ].
@@ -93,7 +90,7 @@ is
 ---
 If the same shortcut is created several times due to name collision, the second and subsequent shortcuts are appended with a sequential number.
 Example:
-Assume we have three [eaa] commands, and they were added in this order:
+Assume we have three \"[eaa] <ARG>\" commands, and they were added in this order:
 1. enable alias <ARG>
 2. exists argument <ARG>
 3. eat ate <ARG>
@@ -120,7 +117,7 @@ Example: if you have two commands with the [eca] shortcut name, \"explain comman
 You can of course use shortcuts while meta-asking for explanation about explanation:
 <<VIO>> [eca] \"[eca] <ARG>\"
   [[help for explain command <ARG>]]
-";
+\n===HELP MESSAGE END===\n";
 
 pub struct Help;
 impl Help {
@@ -240,4 +237,8 @@ pub fn get_config_file_name() -> String {
 
 pub fn get_help_message() -> String {
     VIOLET_HELP_MESSAGE.to_string()
+}
+
+pub fn get_argspec_misused_error_message() -> String {
+  ARGSPEC_MISUSED_ERROR_MESSAGE.to_string()
 }

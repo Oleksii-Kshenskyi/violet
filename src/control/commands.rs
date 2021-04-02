@@ -21,6 +21,7 @@ pub enum InterpretedCommand {
 
 pub enum InterpretationError {
     ArgumentEmpty { argument_name: String },
+    ArgSpecifierMisused,
 }
 
 #[enum_dispatch]
@@ -92,6 +93,10 @@ impl Action for WhatsYourNameCommand {
 pub struct SayThisAndThatCommand;
 impl Action for SayThisAndThatCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
+        }
+
         println!(
             "Gotcha. Saying {} and {}!",
             args.get(0).unwrap(),
@@ -110,6 +115,10 @@ impl Action for SayThisAndThatCommand {
 pub struct AddAliasCommand;
 impl Action for AddAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
+        }
+
         if args[0].is_empty() {
             return Err(InterpretationError::ArgumentEmpty {
                 argument_name: "alias to add".to_string(),
@@ -136,6 +145,10 @@ impl Action for AddAliasCommand {
 pub struct RemoveAliasCommand;
 impl Action for RemoveAliasCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
+        }
+
         if args[0].is_empty() {
             return Err(InterpretationError::ArgumentEmpty {
                 argument_name: "alias to remove".to_string(),
@@ -182,6 +195,10 @@ impl Action for ListAvailableCommandsCommand {
 pub struct ExplainCommandCommand;
 impl Action for ExplainCommandCommand {
     fn execute(&self, args: Vec<String>) -> Result<InterpretedCommand, InterpretationError> {
+        if args.iter().any(|arg| arg == "<ARG>") {
+            return Err(InterpretationError::ArgSpecifierMisused);
+        }
+
         if args[0].is_empty() {
             return Err(InterpretationError::ArgumentEmpty {
                 argument_name: "command to explain".to_string(),
