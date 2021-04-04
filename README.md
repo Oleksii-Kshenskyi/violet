@@ -2,17 +2,27 @@
 
 Violet is a command interpreter.
 Its main intended feature is a syntax close to plain English.
-At the moment, Violet is just starting out and therefore no specific functionality is planned. Once the very basic alpha-version is ready, a user is going to be able to add new commands on their own and essentially make whatever they want out of Violet.
 
-## Some possible features:
+The very basic alpha version (0.2.0) has just been released, so the very basic mechanics have been implemented. Violet has a few commands, can take single word and multi word arguments, you can set and remove aliases for existing commands, and Violet also provides a shortcut syntax for commands.
 
-- Taking notes;
-- Search mechanism for those notes;
-- Arithmetic operations with time.
+For example, Violet currently has these basic commands:
+- `explain command <ARG>`
+- `list available commands`
+- `what time is it`
+- `please say <ARG> and <ARG>`
+- `help`
+- `add alias <ARG> for builtin <ARG>`
+- `exit`
+- `remove alias <ARG>`
+- `what is your name`
+
+If you're interested in playing around with Violet, you can either clone it from this git repo and issue the standard `cargo build` + `cargo run` commands for Rust projects in the command line (if you have the latest Rust stable installed), or you can take the distibution from the Releases section (0.2.0 is available). However, Violet doesn't do anything too useful yet, as 0.2.0 was a milestone for implementing the basic underlying mechanics of an interpreter. Future milestones are probably going to include implementing more useful features.
+
+`help` (or `[h]`) command is a pretty big information dump for users to get familiar with the basic mechanics of Violet. `list available commands` (or `[lac]`) will tell you what commands Violet has available. `explain command "<command name>"` (or `[eca] "<command name>"`) can explain specific commands to you in more detail.
 
 ### IMPORTANT
-This project has just started, therefore nothing is ready yet. There is close to nothing here, and everything that's already here is subject to change.
-If you'd like to know how Violet's doing, please take a look at the [0.2.0 milestone](https://github.com/Oleksii-Kshenskyi/violet/milestone/1), currently this is what's being worked on.
+
+The project is extremely new, only the basics have been implemented and it doesn't do anything useful yet. It should be stable and not have any critical bugs though.
 
 ## License
 
